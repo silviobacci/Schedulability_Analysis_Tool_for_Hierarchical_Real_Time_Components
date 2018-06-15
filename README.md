@@ -1,0 +1,2 @@
+# Schedulability_Analysis_Tool_for_Hierarchical_Real_Time_EDF_and_FP_Components
+Extension of schedulability analysis tool for hierarchical RT EDF and FP components developed by the Professor Luca Abeni. The extensione aims to add to the tool an analysis in case of EDF and multi-CPU partitioned scheduling. The project was realized at University of Pisa/Scuola Superiore Sant'Anna in the context of Component Based Software Design exam.
