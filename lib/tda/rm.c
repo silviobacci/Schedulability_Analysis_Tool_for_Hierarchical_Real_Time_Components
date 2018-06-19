@@ -1,5 +1,5 @@
-#include <task/task.h>
-#include <task/taskset.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
 #include <task/scheduling_points.h>
 #include <dbf/rm.h>
 

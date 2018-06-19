@@ -2,28 +2,9 @@
 
 #include <task/task_io.h>
 #include <task/scheduling_points.h>
+#include <utilities/prints.h>
 #include <dbf/edf.h>
 #include <tda/edf.h>
-
-static void stats_print(taskset *ts) {
-	unsigned int sp[MAX_SCHEDULING_POINTS], i;
-	int j, n_sp;
-	
-	for(i = 0; i < ts->size; i++) {
-		n_sp = scheduling_points(ts, i, sp, MAX_SCHEDULING_POINTS);
-		
-		if (n_sp > 0) {
-			printf("The %d° task has %d scheduling points:", i + 1, n_sp);
-			for (j = 0; j < n_sp; j++)
-				printf(" %u", sp[j]);
-			printf("\n");
-	
-			for (j = 0; j < n_sp; j++)
-				printf("\tdbf(%u) = %f\n", sp[j], dbf_edf(ts, sp[j]));
-			printf("\n");
-		}
-	}
-}
 
 int main(int argc, char *argv[]) {
 	FILE *in;
@@ -34,26 +15,31 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
-	in = fopen(argv[1], "r");
-	if (in == NULL) {
+	if ((in = fopen(argv[1], "r")) == NULL) {
 		perror("FOpen");
 		return -2;
 	}
 
-	ts = taskset_load(in);
-	if (ts == NULL) {
+	if ((ts = load_taskset(in)) == NULL) {
 		fprintf(stderr, "Error loading taskset!\n");
 		return -3;
 	}
+
+	printf("\n--------------------------------------------------------------------");
+	printf("\n----------------------------- TDA EDF ------------------------------");
+	printf("\n--------------------------------------------------------------------\n\n");
 	
-	printf("Taskset:\n");
-	taskset_print(ts, stdout);
-	stats_print(ts);
+	print_taskset(ts, stdout);
+	print_tda_rm(ts, stdout);
 
 	if(tda_edf(ts))
-		printf("The task set is schedulable under EDF.\n");
+		printf("\nThe task set is schedulable under EDF.\n");
 	else
-		printf("The task set is NOT schedulable under EDF.\n");
+		printf("\nThe task set is NOT schedulable under EDF.\n");
+
+	printf("\n--------------------------------------------------------------------");
+	printf("\n--------------------------- END TDA EDF ----------------------------");
+	printf("\n--------------------------------------------------------------------\n\n");
 
 	return 0;
 }

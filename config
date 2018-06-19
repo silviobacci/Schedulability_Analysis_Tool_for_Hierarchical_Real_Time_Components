@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+make clean
+make
+make soft_clean

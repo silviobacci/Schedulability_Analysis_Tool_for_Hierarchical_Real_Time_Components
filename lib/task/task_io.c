@@ -5,7 +5,7 @@
 
 #define MAX_NUMBER_TASKS 	32
 
-taskset *taskset_load(FILE *f) {
+taskset * load_taskset(FILE *f) {
 	int res;
 	unsigned int i = 0;
 	taskset * ts = malloc(sizeof(taskset));
@@ -31,9 +31,14 @@ taskset *taskset_load(FILE *f) {
 	return ts;
 }
 
-void taskset_print(taskset *ts, FILE *f) {
-	unsigned int i;
+periodic_server * load_periodic_server(unsigned int Qs, unsigned int Ts) {
+	periodic_server * ps = malloc(sizeof(periodic_server));
+	
+	if (ps == NULL)
+		return NULL;
+	
+	ps->Qs = Qs;
+	ps->Ts = Ts;
 
-	for (i = 0; i < ts->size; i++)
-		fprintf(f, "(%u, %u, %u)\n", ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].P);
+	return ps;
 }

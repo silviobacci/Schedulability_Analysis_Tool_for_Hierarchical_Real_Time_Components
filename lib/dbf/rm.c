@@ -1,15 +1,7 @@
-#include <task/task.h>
-#include <task/taskset.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <utilities/utilities.h>
 #include <dbf/rm.h>
-
-static unsigned int my_ceil(unsigned int n, unsigned int d) {
-	unsigned int q = n / d;
-	
-	if (q * d == n) 
-		return q;
-	
-	return q + 1;
-}
 
 unsigned int dbf_rm(taskset *ts, unsigned int task_index, unsigned int t) {
 	unsigned int i;

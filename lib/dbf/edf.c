@@ -1,12 +1,7 @@
-#include <task/task.h>
-#include <task/taskset.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <utilities/utilities.h>
 #include <dbf/edf.h>
-
-static double my_max(double n1, double n2) {
-	if(n1 > n2)
-		return n1;
-	return n2;
-}
 
 double dbf_edf(taskset *ts, unsigned int t) {
 	unsigned int i;
