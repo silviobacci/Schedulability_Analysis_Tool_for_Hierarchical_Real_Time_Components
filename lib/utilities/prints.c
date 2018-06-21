@@ -4,6 +4,8 @@
 #include <task/structs/task.h>
 #include <task/structs/taskset.h>
 #include <task/structs/periodic_server.h>
+#include <cpu/structs/core.h>
+#include <cpu/structs/cpu.h>
 #include <task/testing_set.h>
 #include <utilities/prints.h>
 #include <utilities/utilities.h>
@@ -27,26 +29,51 @@ void print_taskset(taskset *ts, FILE *f) {
 	fprintf(f, "\n");
 }
 
-void print_taskset_scheduling_points(unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
+void print_cpu(cpu *c, FILE *f) {
 	unsigned int i;
 
-	fprintf(f, "The taskset has %d scheduling points: ", n_testing_set);
+	fprintf(f, "The cpu is composed by the following %d cores:\n", c->n_cores);
 
-	for (i = 0; i < n_testing_set; i++)
-		fprintf(f, " %u", testing_set[i]);
-	
+	for (i = 0; i < c->n_cores; i++)
+		fprintf(f, "\t Core %u :\n\t\t scheduling algorithm : %s\n\t\t Qs = %d\n\t\t Ts = %d\n\n", i + 1, c->cores[i].algorithm, c->cores[i].ps->Qs, c->cores[i].ps->Ts);
+
 	fprintf(f, "\n");
 }
 
-void print_task_scheduling_points(unsigned int task_index, unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
+void print_cpu_load(cpu *c, FILE *f) {
+	unsigned int i, j;
+
+	fprintf(f, "The computational load on the cpu is the following:\n");
+
+	for (i = 0; i < c->n_cores; i++) {
+		fprintf(f, "\t Core %u :\n\t\t u : %f", i + 1, c->cores[i].u);
+		for (j = 0; j < c->cores[i].ts->size; j++)
+			fprintf(f, "\n\t\t Task %u : (%u, %u, %u)", i + 1, c->cores[i].ts->tasks[i].C, c->cores[i].ts->tasks[i].D, c->cores[i].ts->tasks[i].T);
+	}
+
+	fprintf(f, "\n\n");
+}
+
+void print_testing_set_edf(unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
 	unsigned int i;
-	
-	fprintf(f, "The %d° task has %d scheduling points: ", task_index, n_testing_set);
+
+	fprintf(f, "The taskset has %d points in the testing set: { ", n_testing_set);
 
 	for (i = 0; i < n_testing_set; i++)
-		fprintf(f, " %u", testing_set[i]);
+		fprintf(f, "%u ", testing_set[i]);
 	
-	fprintf(f, "\n");
+	fprintf(f, "}\n");
+}
+
+void print_testing_set_fp(unsigned int *testing_set, unsigned int n_testing_set, unsigned int task_index, FILE *f) {
+	unsigned int i;
+	
+	fprintf(f, "The %d° task has %d points in the testing set: { ", task_index, n_testing_set);
+
+	for (i = 0; i < n_testing_set; i++)
+		fprintf(f, "%u ", testing_set[i]);
+	
+	fprintf(f, "}\n");
 }
 
 void print_periodic_server(periodic_server *ps, FILE *f) {
@@ -68,7 +95,7 @@ void print_s_analysis_fp(taskset *ts, FILE *f) {
 	
 	for(i = 0; i < ts->size; i++)
 		if ((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
-			print_task_scheduling_points(i + 1, testing_set, n_testing_set, f);
+			print_testing_set_fp(testing_set, n_testing_set, i + 1, f);
 	
 			for (j = 0; j < n_testing_set; j++)
 				fprintf(f, "\t dbf(%u) = %u\n", testing_set[j], workload(ts, i, testing_set[j]));
@@ -82,8 +109,7 @@ void print_s_analysis_edf(taskset *ts, FILE *f) {
 	int i, n_testing_set;
 		
 	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
-		print_taskset_scheduling_points(testing_set, n_testing_set, f);
-		printf("sono qui\n");
+		print_testing_set_edf(testing_set, n_testing_set, f);
 		for (i = 0; i < n_testing_set; i++)
 			fprintf(f, "\t dbf(%u) = %f\n", testing_set[i], dbf(ts, testing_set[i]));
 	}
@@ -95,7 +121,7 @@ void print_h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f){
 
 	for(i = 0; i < ts->size; i++)
 		if ((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
-			print_task_scheduling_points(i + 1, testing_set, n_testing_set, f);
+			print_testing_set_fp(testing_set, n_testing_set, i + 1, f);
 
 			for (j = 0; j < n_testing_set; j++)
 				fprintf(f, "\t dbf(%d) = %u; sbf(%d) = %u\n", testing_set[j], workload(ts, i, testing_set[j]), testing_set[j], sbf(ps, testing_set[j]));
@@ -109,7 +135,7 @@ void print_h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
 	int i, n_testing_set;
 
 	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
-		print_taskset_scheduling_points(testing_set, n_testing_set, f);
+		print_testing_set_edf(testing_set, n_testing_set, f);
 
 		for (i = 0; i < n_testing_set; i++)
 			fprintf(f, "\t dbf(%d) = %f; sbf(%d) = %u\n", testing_set[i], dbf(ts, testing_set[i]), testing_set[i], sbf(ps, testing_set[i]));

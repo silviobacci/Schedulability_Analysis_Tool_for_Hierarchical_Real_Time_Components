@@ -8,8 +8,7 @@ double ulub_fp(taskset *ts) {
 }
 
 unsigned int workload(taskset *ts, unsigned int i, unsigned int t) {
-	unsigned int j;
-	unsigned int res = ts->tasks[i].C;
+	unsigned int j, res = ts->tasks[i].C;
 	
 	for (j = 0; j < i; j++)
 		res += my_ceil(t, ts->tasks[j].T) * ts->tasks[j].C;

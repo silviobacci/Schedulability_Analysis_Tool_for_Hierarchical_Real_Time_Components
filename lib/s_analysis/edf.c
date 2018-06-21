@@ -25,7 +25,6 @@ static unsigned int pda(taskset *ts) {
 }
 
 unsigned int s_analysis_edf(taskset *ts) {
-	printf("sono qui\n");
 	if(ts->is_deadline_costrained)
 		return pda(ts);
 	return utilization_bound(ts);

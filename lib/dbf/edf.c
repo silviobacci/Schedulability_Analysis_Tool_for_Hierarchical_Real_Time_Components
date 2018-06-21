@@ -8,11 +8,10 @@ int ulub_edf() {
 }
 
 double dbf(taskset *ts, unsigned int t) {
-	unsigned int i;
-	double res = 0;
+	unsigned int i, res = 0;
 	
 	for (i = 0; i < ts->size; i++)
-		res += my_floor(0.0, (((double) t + ts->tasks[i].T - ts->tasks[i].D) / ts->tasks[i].T)) * ts->tasks[i].C;
+		res += my_floor(t + ts->tasks[i].T - ts->tasks[i].D, ts->tasks[i].T) * ts->tasks[i].C;
 
 	return res;
 }

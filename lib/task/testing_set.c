@@ -38,15 +38,15 @@ int testing_set_edf(taskset *ts, unsigned int *points) {
 	double L, Lstar = 0;
 	
 	for (i = 0; i < ts->size; i++)
-		Lstar += (ts->tasks[i].T - ts->tasks[i].D) * ts->tasks[i].C / ts->tasks[i].T;
+		Lstar += (double) (ts->tasks[i].T - ts->tasks[i].D) * ts->tasks[i].C / ts->tasks[i].T;
 
 	Lstar = Lstar / (1 - utilization_factor(ts));
 	
 	Dmax = max_deadline(ts);
 	H = lcm(ts);
 	L = my_min(H, my_max(Dmax, Lstar));
-
-	points[n_points++] = L;
+	
+	//printf("\n\n U = %f\n Lstar = %f\n Dmax = %d\n H = %d\n L = %f\n\n", utilization_factor(ts), Lstar, Dmax, H, L);
 	
 	for (i = 0; i < ts->size; i++) {
 		k = 0;

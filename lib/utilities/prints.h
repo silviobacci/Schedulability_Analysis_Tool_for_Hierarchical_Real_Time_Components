@@ -2,8 +2,10 @@
 #define PRINTS_H
 
 void print_taskset(taskset *ts, FILE *f);
-void print_taskset_scheduling_points(unsigned int *sp, unsigned int n_sp, FILE *f);
-void print_task_scheduling_points(unsigned int task_index, unsigned int *sp, unsigned int n_sp, FILE *f);
+void print_cpu(cpu *c, FILE *f);
+void print_cpu_load(cpu *c, FILE *f);
+void print_testing_set_fp(unsigned int *sp, unsigned int n_sp, unsigned int task_index, FILE *f);
+void print_testing_set_edf(unsigned int *sp, unsigned int n_sp, FILE *f);
 void print_periodic_server(periodic_server *ps, FILE *f);
 void print_sbf(periodic_server *ps, unsigned int start_time, unsigned int end_time, FILE *f);
 void print_s_analysis_fp(taskset *ts, FILE *f);

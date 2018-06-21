@@ -46,12 +46,26 @@ unsigned int min_period(taskset *ts) {
 	return MIN;
 }
 
+static unsigned int lcm_(int a, int b){
+	int lcm_temp = a;
+	
+	while(1){
+		if(lcm_temp % b == 0 && lcm_temp % a == 0)
+			break;
+		lcm_temp++;
+	}
+
+	return lcm_temp;
+}
+
 unsigned int lcm(taskset *ts) {
 	unsigned int i, lcm_temp = ts->tasks[0].T;
 
 	for(i = 1; i < ts->size; i++)
-		while(lcm_temp % ts->tasks[i-1].T != 0 || lcm_temp % ts->tasks[i].T != 0)
-			lcm_temp++;
+		if(lcm_temp > ts->tasks[i].T)
+			lcm_temp = lcm_(lcm_temp, ts->tasks[i].T);
+		else
+			lcm_temp = lcm_(ts->tasks[i].T, lcm_temp);
 
     return lcm_temp;
 }

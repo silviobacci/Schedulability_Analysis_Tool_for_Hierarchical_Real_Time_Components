@@ -37,9 +37,9 @@ int main(int argc, char *argv[]) {
 	print_h_analysis_fp(ts, ps, stdout);
 
 	if(h_analysis_fp(ts, ps))
-		printf("The task set is schedulable with the specified periodic server.\n");
+		printf("The task set is schedulable under RM with the specified periodic server.\n");
 	else {
-		printf("The task set is NOT schedulable with the specified periodic server.\n");
+		printf("The task set is NOT schedulable under RM with the specified periodic server.\n");
 		printf("Let's try to find a periodic server that can schedule the entire taskset. ");
 		ps = find_periodic_server_rm(ts);
 		print_periodic_server(ps, stdout);

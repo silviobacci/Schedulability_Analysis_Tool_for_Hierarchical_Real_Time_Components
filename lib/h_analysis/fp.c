@@ -10,7 +10,6 @@
 
 periodic_server * find_periodic_server_rm(taskset *ts) {
 	unsigned int Ts = min_period(ts);
-	printf("\n\n U = %f\n\n",  utilization_factor(ts));
 	unsigned int Qs = my_ceil(Ts * utilization_factor(ts), 1);
 	return load_periodic_server(Qs, Ts);
 }
