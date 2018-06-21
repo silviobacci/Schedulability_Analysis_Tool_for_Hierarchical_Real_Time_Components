@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 #include <task/task_io.h>
-#include <task/scheduling_points.h>
+#include <task/testing_set.h>
 #include <utilities/prints.h>
-#include <dbf/rm.h>
-#include <tda/rm.h>
+#include <dbf/fp.h>
+#include <s_analysis/fp.h>
 
 int main(int argc, char *argv[]) {
 	FILE *in;
@@ -26,19 +26,19 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("\n--------------------------------------------------------------------");
-	printf("\n----------------------------- TDA RM -------------------------------");
+	printf("\n-------------------- SCHEDULING ANLYSIS FP -------------------------");
 	printf("\n--------------------------------------------------------------------\n\n");
 	
 	print_taskset(ts, stdout);
-	print_tda_rm(ts, stdout);
+	print_s_analysis_fp(ts, stdout);
 
-	if(tda_rm(ts))
-		printf("The task set is schedulable under RM.\n");
+	if(s_analysis_fp(ts))
+		printf("The task set is schedulable under FP.\n");
 	else
-		printf("The task set is NOT schedulable under RM.\n");
+		printf("The task set is NOT schedulable under FP.\n");
 
 	printf("\n--------------------------------------------------------------------");
-	printf("\n--------------------------- END TDA RM -----------------------------");
+	printf("\n------------------ END SCHEDULING ANLYSIS FP -----------------------");
 	printf("\n--------------------------------------------------------------------\n\n");
 
 	return 0;

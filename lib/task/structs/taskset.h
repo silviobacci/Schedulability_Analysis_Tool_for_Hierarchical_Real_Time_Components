@@ -3,6 +3,7 @@
 
 typedef struct taskset_ {
 	unsigned int size;
+	unsigned int is_deadline_costrained;
 	task *tasks;
 } taskset;
 

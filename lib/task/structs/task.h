@@ -4,7 +4,7 @@
 typedef struct task_ {
 	unsigned int C;
 	unsigned int D;
-	unsigned int P;
+	unsigned int T;
 } task;
 
 #endif

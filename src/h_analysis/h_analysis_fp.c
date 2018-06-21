@@ -2,11 +2,9 @@
 #include <stdio.h>
 
 #include <task/task_io.h>
-#include <task/scheduling_points.h>
+#include <task/testing_set.h>
 #include <utilities/prints.h>
-#include <dbf/rm.h>
-#include <h_analysis/rm.h>
-#include <sbf/sbf.h>
+#include <h_analysis/fp.h>
 
 int main(int argc, char *argv[]) {
 	FILE *in;
@@ -36,16 +34,16 @@ int main(int argc, char *argv[]) {
 	
 	print_taskset(ts, stdout);
 	print_periodic_server(ps, stdout);
-	printf_h_analysis_rm(ts, ps, stdout);
+	print_h_analysis_fp(ts, ps, stdout);
 
-	if(h_analysis_rm(ts, ps))
+	if(h_analysis_fp(ts, ps))
 		printf("The task set is schedulable with the specified periodic server.\n");
 	else {
 		printf("The task set is NOT schedulable with the specified periodic server.\n");
 		printf("Let's try to find a periodic server that can schedule the entire taskset. ");
 		ps = find_periodic_server_rm(ts);
 		print_periodic_server(ps, stdout);
-		printf_h_analysis_rm(ts, ps, stdout);
+		print_h_analysis_fp(ts, ps, stdout);
 	}
 
 	printf("\n--------------------------------------------------------------------");

@@ -13,7 +13,7 @@ double utilization_factor(taskset *ts) {
 	double U = 0;
 
 	for(i = 0; i < ts->size; i++)
-		U += (double) ts->tasks[i].C / ts->tasks[i].P;
+		U += (double) ts->tasks[i].C / ts->tasks[i].T;
 	
 	return U;
 }

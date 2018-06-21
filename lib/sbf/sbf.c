@@ -1,17 +1,18 @@
+#include <task/structs/periodic_server.h>
 #include <sbf/sbf.h>
 
-unsigned int sbf(unsigned int Qs, unsigned int Ts, unsigned int t) {
+unsigned int sbf(periodic_server *ps, unsigned int t) {
 	unsigned int n;
 
-	if (t < 2 * (Ts - Qs))
+	if (t < 2 * (ps->Ts - ps->Qs))
 		return 0;
 	
-	t -= 2 * (Ts - Qs);
-	n = t / Ts;
-	t = t % Ts;
+	t -= 2 * (ps->Ts - ps->Qs);
+	n = t / ps->Ts;
+	t = t % ps->Ts;
 
-	if (t > Qs) 
-		return (n + 1) * Qs;
+	if (t > ps->Qs) 
+		return (n + 1) * ps->Qs;
 	
-	return t + n * Qs; 
+	return t + n * ps->Qs; 
 }

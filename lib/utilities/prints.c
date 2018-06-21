@@ -4,12 +4,12 @@
 #include <task/structs/task.h>
 #include <task/structs/taskset.h>
 #include <task/structs/periodic_server.h>
-#include <task/scheduling_points.h>
+#include <task/testing_set.h>
 #include <utilities/prints.h>
 #include <utilities/utilities.h>
 #include <sbf/sbf.h>
 #include <dbf/edf.h>
-#include <dbf/rm.h>
+#include <dbf/fp.h>
 
 void print_taskset(taskset *ts, FILE *f) {
 	unsigned int i;
@@ -17,29 +17,34 @@ void print_taskset(taskset *ts, FILE *f) {
 	fprintf(f, "The taskset is composed by the following tasks expressed with the (C,D,T) model:\n");
 
 	for (i = 0; i < ts->size; i++)
-		fprintf(f, "\t Task %u : (%u, %u, %u)\n", i + 1, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].P);
+		fprintf(f, "\t Task %u : (%u, %u, %u)\n", i + 1, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].T);
+
+	if(ts->is_deadline_costrained)
+		fprintf(f, "Note that the taskset has the deadlines that less than or equal to the periods.\n");
+	else
+		fprintf(f, "Note that the taskset has the deadlines always equal to the periods.\n");
 
 	fprintf(f, "\n");
 }
 
-void print_taskset_scheduling_points(unsigned int *sp, unsigned int n_sp, FILE *f) {
+void print_taskset_scheduling_points(unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
 	unsigned int i;
 
-	fprintf(f, "The taskset has %d scheduling points: ", n_sp);
+	fprintf(f, "The taskset has %d scheduling points: ", n_testing_set);
 
-	for (i = 0; i < n_sp; i++)
-		fprintf(f, " %u", sp[i]);
+	for (i = 0; i < n_testing_set; i++)
+		fprintf(f, " %u", testing_set[i]);
 	
 	fprintf(f, "\n");
 }
 
-void print_task_scheduling_points(unsigned int task_index, unsigned int *sp, unsigned int n_sp, FILE *f) {
+void print_task_scheduling_points(unsigned int task_index, unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
 	unsigned int i;
 	
-	fprintf(f, "The %d° task has %d scheduling points: ", task_index, n_sp);
+	fprintf(f, "The %d° task has %d scheduling points: ", task_index, n_testing_set);
 
-	for (i = 0; i < n_sp; i++)
-		fprintf(f, " %u", sp[i]);
+	for (i = 0; i < n_testing_set; i++)
+		fprintf(f, " %u", testing_set[i]);
 	
 	fprintf(f, "\n");
 }
@@ -54,69 +59,59 @@ void print_sbf(periodic_server *ps, unsigned int start_time, unsigned int end_ti
 	fprintf(f, "The sbf computed from time %u to time %u is: \n", start_time, end_time);
 
 	for (t = start_time; t < end_time; t++)
-		fprintf(f, "\t sbf(%u) = %u\n", t, sbf(ps->Qs, ps->Ts, t));
+		fprintf(f, "\t sbf(%u) = %u\n", t, sbf(ps, t));
 }
 
-void print_tda_rm(taskset *ts, FILE *f) {
-	unsigned int sp[MAX_SCHEDULING_POINTS], i;
-	int j, n_sp;
+void print_s_analysis_fp(taskset *ts, FILE *f) {
+	unsigned int testing_set[MAX_SCHEDULING_POINTS], i;
+	int j, n_testing_set;
 	
-	for(i = 0; i < ts->size; i++) {
-		n_sp = scheduling_points(ts, i, sp, MAX_SCHEDULING_POINTS);
-		
-		if (n_sp > 0) {
-			print_task_scheduling_points(i + 1, sp, n_sp, f);
+	for(i = 0; i < ts->size; i++)
+		if ((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
+			print_task_scheduling_points(i + 1, testing_set, n_testing_set, f);
 	
-			for (j = 0; j < n_sp; j++)
-				fprintf(f, "\t dbf(%u) = %u\n", sp[j], dbf_rm(ts, i, sp[j]));
+			for (j = 0; j < n_testing_set; j++)
+				fprintf(f, "\t dbf(%u) = %u\n", testing_set[j], workload(ts, i, testing_set[j]));
 
 			fprintf(f, "\n");
 		}
+}
+
+void print_s_analysis_edf(taskset *ts, FILE *f) {
+	unsigned int testing_set[MAX_SCHEDULING_POINTS];
+	int i, n_testing_set;
+		
+	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
+		print_taskset_scheduling_points(testing_set, n_testing_set, f);
+		printf("sono qui\n");
+		for (i = 0; i < n_testing_set; i++)
+			fprintf(f, "\t dbf(%u) = %f\n", testing_set[i], dbf(ts, testing_set[i]));
 	}
 }
 
-void print_tda_edf(taskset *ts, FILE *f) {
-	unsigned int sp[MAX_SCHEDULING_POINTS];
-	int i, n_sp;
-	
-	n_sp = scheduling_points(ts, task_with_max_period(ts), sp, MAX_SCHEDULING_POINTS);
-		
-	if (n_sp > 0) {
-		print_taskset_scheduling_points(sp, n_sp, f);
+void print_h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f){
+	unsigned int testing_set[MAX_SCHEDULING_POINTS], i;
+	int j, n_testing_set;
 
-		for (i = 0; i < n_sp; i++)
-			fprintf(f, "\t dbf(%u) = %f\n", sp[i], dbf_edf(ts, sp[i]));
-	}
-}
+	for(i = 0; i < ts->size; i++)
+		if ((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
+			print_task_scheduling_points(i + 1, testing_set, n_testing_set, f);
 
-void printf_h_analysis_rm(taskset *ts, periodic_server *ps, FILE *f){
-	unsigned int sp[MAX_SCHEDULING_POINTS], i;
-	int j, n_sp;
-
-	for(i = 0; i < ts->size; i++) {
-		n_sp = scheduling_points(ts, i, sp, MAX_SCHEDULING_POINTS);
-		
-		if (n_sp > 0) {
-			print_task_scheduling_points(i + 1, sp, n_sp, f);
-
-			for (j = 0; j < n_sp; j++)
-				fprintf(f, "\t dbf(%d) = %u; sbf(%d) = %u\n", sp[j], dbf_rm(ts, i, sp[j]), sp[j], sbf(ps->Qs, ps->Ts, sp[j]));
+			for (j = 0; j < n_testing_set; j++)
+				fprintf(f, "\t dbf(%d) = %u; sbf(%d) = %u\n", testing_set[j], workload(ts, i, testing_set[j]), testing_set[j], sbf(ps, testing_set[j]));
 
 			fprintf(f, "\n");
 		}
-	}
 }
 
-void printf_h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
-	unsigned int sp[MAX_SCHEDULING_POINTS];
-	int i, n_sp;
+void print_h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
+	unsigned int testing_set[MAX_SCHEDULING_POINTS];
+	int i, n_testing_set;
 
-	n_sp = scheduling_points(ts, task_with_max_period(ts), sp, MAX_SCHEDULING_POINTS);
+	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
+		print_taskset_scheduling_points(testing_set, n_testing_set, f);
 
-	if (n_sp > 0) {
-		print_taskset_scheduling_points(sp, n_sp, f);
-
-		for (i = 0; i < n_sp; i++)
-			fprintf(f, "\t dbf(%d) = %f; sbf(%d) = %u\n", sp[i], dbf_edf(ts, sp[i]), sp[i], sbf(ps->Qs, ps->Ts, sp[i]));
+		for (i = 0; i < n_testing_set; i++)
+			fprintf(f, "\t dbf(%d) = %f; sbf(%d) = %u\n", testing_set[i], dbf(ts, testing_set[i]), testing_set[i], sbf(ps, testing_set[i]));
 	}
 }

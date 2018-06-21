@@ -2,12 +2,9 @@
 #include <stdio.h>
 
 #include <task/task_io.h>
-#include <task/scheduling_points.h>
+#include <task/testing_set.h>
 #include <utilities/prints.h>
-#include <dbf/edf.h>
-#include <tda/edf.h>
 #include <h_analysis/edf.h>
-#include <sbf/sbf.h>
 
 int main(int argc, char *argv[]) {
 	FILE *in;
@@ -37,7 +34,7 @@ int main(int argc, char *argv[]) {
 	
 	print_taskset(ts, stdout);
 	print_periodic_server(ps, stdout);
-	printf_h_analysis_edf(ts, ps, stdout);
+	print_h_analysis_edf(ts, ps, stdout);
 
 	if(h_analysis_edf(ts, ps))
 		printf("\nThe task set is schedulable under EDF with the specified periodic server.\n");

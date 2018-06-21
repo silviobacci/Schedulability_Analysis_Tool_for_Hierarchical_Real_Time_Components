@@ -21,12 +21,17 @@ taskset * load_taskset(FILE *f) {
 	}
 
 	while(!feof(f) && (i < MAX_NUMBER_TASKS)) {
-		res = fscanf(f, "%u %u %u\n", &ts->tasks[i].C, &ts->tasks[i].D, &ts->tasks[i].P);
+		res = fscanf(f, "%u %u %u\n", &ts->tasks[i].C, &ts->tasks[i].D, &ts->tasks[i].T);
 		if (res == 3)
 			i++;
 	}
 
 	ts->size = i;
+	ts->is_deadline_costrained = 0;
+
+	for(i = 0; i < ts->size; i++)
+		if(ts->tasks[i].D < ts->tasks[i].T)
+			ts->is_deadline_costrained = 1;
 
 	return ts;
 }

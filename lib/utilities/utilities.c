@@ -10,33 +10,50 @@ unsigned int my_ceil(unsigned int n, unsigned int d) {
 	return q + 1;
 }
 
+unsigned int my_floor(unsigned int n, unsigned int d) {
+	return n / d;
+}
+
 double my_max(double n1, double n2) {
 	if(n1 > n2)
 		return n1;
 	return n2;
 }
 
-unsigned int task_with_min_period(taskset *ts) {
-	unsigned int i;
-	unsigned int MIN = ts->tasks[0].P;
+double my_min(double n1, double n2) {
+	if(n1 < n2)
+		return n1;
+	return n2;
+}
+
+unsigned int max_deadline(taskset *ts) {
+	unsigned int i, MAX = ts->tasks[0].D;
 
 	for(i = 1; i < ts->size; i++)
-		if(ts->tasks[i].P < MIN)
-			MIN = ts->tasks[i].P;
+		if(ts->tasks[i].D > MAX)
+			MAX = ts->tasks[i].D;
+	
+	return MAX;
+}
+
+unsigned int min_period(taskset *ts) {
+	unsigned int i, MIN = ts->tasks[0].T;
+
+	for(i = 1; i < ts->size; i++)
+		if(ts->tasks[i].T < MIN)
+			MIN = ts->tasks[i].T;
 	
 	return MIN;
 }
 
-unsigned int task_with_max_period(taskset *ts) {
-	unsigned int i, max_period = 0, thread_index = 0;
+unsigned int lcm(taskset *ts) {
+	unsigned int i, lcm_temp = ts->tasks[0].T;
 
-	for (i = 0; i < ts->size; i++)
-		if(ts->tasks[i].P > max_period) {
-			max_period = ts->tasks[i].P;
-			thread_index = i;
-		}
+	for(i = 1; i < ts->size; i++)
+		while(lcm_temp % ts->tasks[i-1].T != 0 || lcm_temp % ts->tasks[i].T != 0)
+			lcm_temp++;
 
-	return thread_index;
+    return lcm_temp;
 }
 
 void bubble_sort(unsigned int *array, int array_size) {
