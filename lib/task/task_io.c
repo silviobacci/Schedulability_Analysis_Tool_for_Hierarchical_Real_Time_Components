@@ -3,34 +3,7 @@
 #include <string.h>
 
 #include <task/task_io.h>
-
-static void sort_by_periods(taskset *ts) {
-	unsigned int i, j;
-	task * temp = malloc(sizeof(task) * MAX_NUMBER_TASKS);
-	
-	for (i = 0; i < (ts->size - 1); i++)
-		for (j = 0; j < (ts->size - 1 - i); j++)
-			if (ts->tasks[j].T > ts->tasks[j + 1].T) {
-				*temp = ts->tasks[j + 1];
-				ts->tasks[j + 1] = ts->tasks[j];
-				ts->tasks[j] = *temp;
-			}
-	free(temp);
-}
-
-static void sort_by_deadlines(taskset *ts) {
-	unsigned int i, j;
-	task * temp = malloc(sizeof(task) * MAX_NUMBER_TASKS);
-	
-	for (i = 0; i < ts->size - 1; i++)
-		for (j = 0; j < ts->size - 1 - i; j++)
-			if (ts->tasks[j].D > ts->tasks[j + 1].D) {
-				*temp = ts->tasks[j + 1];
-				ts->tasks[j + 1] = ts->tasks[j];
-				ts->tasks[j] = *temp;
-			}
-	free(temp);
-}
+#include <utilities/utilities.h>
 
 taskset * load_taskset(FILE *f) {
 	int res;
@@ -49,6 +22,7 @@ taskset * load_taskset(FILE *f) {
 
 	while(!feof(f) && (i < MAX_NUMBER_TASKS)) {
 		res = fscanf(f, "%u %u %u\n", &ts->tasks[i].C, &ts->tasks[i].D, &ts->tasks[i].T);
+		ts->tasks[i].id = i + 1;
 		if (res == 3)
 			i++;
 	}
@@ -61,9 +35,9 @@ taskset * load_taskset(FILE *f) {
 			ts->is_deadline_costrained = 1;
 			
 	if(strcmp(DEFAULT_FP_ALGORITHM, "RM") == 0)	
-		sort_by_periods(ts);
+		sort_by_increasing_periods(ts);
 	else
-		sort_by_deadlines(ts);
+		sort_by_increasing_deadlines(ts);
 
 	return ts;
 }
@@ -73,11 +47,11 @@ taskset * load_taskset_fp(FILE *f, char * algorithm) {
 			
 	if(strcmp(DEFAULT_FP_ALGORITHM, "RM") == 0)	{
 		if(strcmp(algorithm, "dm") == 0 || strcmp(algorithm, "DM") == 0)
-			sort_by_deadlines(ts);
+			sort_by_increasing_deadlines(ts);
 	}
 	else {
 		if(strcmp(algorithm, "rm") == 0 || strcmp(algorithm, "RM") == 0)
-			sort_by_periods(ts);
+			sort_by_increasing_periods(ts);
 	}
 
 	return ts;

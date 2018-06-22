@@ -19,7 +19,7 @@ void print_taskset(taskset *ts, FILE *f) {
 	fprintf(f, "The taskset is composed by the following tasks expressed with the (C,D,T) model:\n");
 
 	for (i = 0; i < ts->size; i++)
-		fprintf(f, "\t Task %u : (%u, %u, %u)\n", i + 1, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].T);
+		fprintf(f, "\t Task %u : (%u, %u, %u)\n", ts->tasks[i].id, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].T);
 
 	if(ts->is_deadline_costrained)
 		fprintf(f, "Note that the taskset has the deadlines that less than or equal to the periods.\n");
@@ -32,26 +32,26 @@ void print_taskset(taskset *ts, FILE *f) {
 void print_cpu(cpu *c, FILE *f) {
 	unsigned int i;
 
+	sort_cores_by_id(c);
 	fprintf(f, "The cpu is composed by the following %d cores:\n", c->n_cores);
 
 	for (i = 0; i < c->n_cores; i++)
-		fprintf(f, "\t Core %u :\n\t\t scheduling algorithm : %s\n\t\t Qs = %d\n\t\t Ts = %d\n\n", i + 1, c->cores[i].algorithm, c->cores[i].ps->Qs, c->cores[i].ps->Ts);
-
-	fprintf(f, "\n");
+		fprintf(f, "\t Core %u :\n\t\t Scheduling Algorithm : %s\n\t\t Periodic Server : (Qs = %d,  Ts = %d)\n\t\t U : %f\n\n", c->cores[i].id, c->cores[i].algorithm, c->cores[i].ps->Qs, c->cores[i].ps->Ts, c->cores[i].u);
 }
 
 void print_cpu_load(cpu *c, FILE *f) {
 	unsigned int i, j;
 
 	fprintf(f, "The computational load on the cpu is the following:\n");
-
+	sort_cores_by_id(c);
+	
+	sort_cores_by_id(c);
 	for (i = 0; i < c->n_cores; i++) {
-		fprintf(f, "\t Core %u :\n\t\t u : %f", i + 1, c->cores[i].u);
+		fprintf(f, "\t Core %u :\n\t\t U : %f", c->cores[i].id, c->cores[i].u);
 		for (j = 0; j < c->cores[i].ts->size; j++)
-			fprintf(f, "\n\t\t Task %u : (%u, %u, %u)", i + 1, c->cores[i].ts->tasks[i].C, c->cores[i].ts->tasks[i].D, c->cores[i].ts->tasks[i].T);
+			fprintf(f, "\n\t\t Task %u : (%u, %u, %u)", c->cores[i].ts->tasks[j].id, c->cores[i].ts->tasks[j].C, c->cores[i].ts->tasks[j].D, c->cores[i].ts->tasks[j].T);
+		fprintf(f, "\n");
 	}
-
-	fprintf(f, "\n\n");
 }
 
 void print_testing_set_edf(unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {

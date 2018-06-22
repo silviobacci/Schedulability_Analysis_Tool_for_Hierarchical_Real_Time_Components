@@ -18,10 +18,11 @@ unsigned int h_analysis_edf(taskset *ts, periodic_server *ps){
 	unsigned int testing_set[MAX_SCHEDULING_POINTS];
 	int i, n_testing_set;
 
-	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0)
+	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
 		for (i = 0; i < n_testing_set; i++)
 			if (dbf(ts, testing_set[i]) > sbf(ps, testing_set[i])) 
 				return 0;
-
+	}
+	
 	return 1;
 }

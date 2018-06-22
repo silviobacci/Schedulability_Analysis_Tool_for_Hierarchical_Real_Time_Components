@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <task/task_io.h>
+#include <cpu/cpu_io.h>
 #include <task/testing_set.h>
 #include <utilities/prints.h>
 #include <dbf/edf.h>

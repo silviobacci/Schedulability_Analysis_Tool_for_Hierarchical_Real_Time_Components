@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include <task/task_io.h>
+#include <cpu/cpu_io.h>
 #include <utilities/prints.h>
 
 #define 	START_TIME		0
