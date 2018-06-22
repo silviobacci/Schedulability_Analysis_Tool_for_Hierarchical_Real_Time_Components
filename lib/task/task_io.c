@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <task/task_io.h>
 #include <utilities/utilities.h>
+
+#include <task/task_io.h>
 
 taskset * load_taskset(FILE *f) {
 	int res;
@@ -33,26 +34,6 @@ taskset * load_taskset(FILE *f) {
 	for(i = 0; i < ts->size; i++)
 		if(ts->tasks[i].D < ts->tasks[i].T)
 			ts->is_deadline_costrained = 1;
-			
-	if(strcmp(DEFAULT_FP_ALGORITHM, "RM") == 0)	
-		sort_by_increasing_periods(ts);
-	else
-		sort_by_increasing_deadlines(ts);
-
-	return ts;
-}
-
-taskset * load_taskset_fp(FILE *f, char * algorithm) {
-	taskset * ts = load_taskset(f);
-			
-	if(strcmp(DEFAULT_FP_ALGORITHM, "RM") == 0)	{
-		if(strcmp(algorithm, "dm") == 0 || strcmp(algorithm, "DM") == 0)
-			sort_by_increasing_deadlines(ts);
-	}
-	else {
-		if(strcmp(algorithm, "rm") == 0 || strcmp(algorithm, "RM") == 0)
-			sort_by_increasing_periods(ts);
-	}
 
 	return ts;
 }

@@ -2,6 +2,56 @@
 
 #include <utilities/utilities.h>
 
+char * s_algorithm_to_string(s_algorithm a) {
+	char * ret = malloc(sizeof(char) * 5);
+	switch(a) {
+		case RM:
+			ret = "RM";
+			break;
+		case DM:
+			ret = "DM";
+			break;
+		case EDF:
+			ret = "EDF";
+			break;
+	}
+	
+	return ret;
+}
+
+char * a_algorithm_to_string(a_algorithm a) {
+	char * ret = malloc(sizeof(char) * 25);
+	switch(a) {
+		case BF:
+			ret = "BEST FIT";
+			break;
+		case FF:
+			ret = "FIRST FIT";
+			break;
+		case NF:
+			ret = "NEXT FIT";
+			break;
+		case WF:
+			ret = "WORST FIT";
+			break;
+		case FFD:
+			ret = "FIRST FIT DECREASING";
+			break;
+	}
+	
+	return ret;
+}
+
+double utilization_factor(taskset *ts) {
+	unsigned int i;
+	double U = 0;
+
+	for(i = 0; i < ts->size; i++)
+		U += (double) ts->tasks[i].C / ts->tasks[i].T;
+	
+	return U;
+}
+
 unsigned int my_ceil(unsigned int n, unsigned int d) {
 	unsigned int q = n / d;
 	
@@ -69,6 +119,24 @@ unsigned int lcm(taskset *ts) {
 			lcm_temp = lcm_(ts->tasks[i].T, lcm_temp);
 
     return lcm_temp;
+}
+
+taskset * create_empty_ts() {
+	taskset *ts = malloc(sizeof(taskset));
+
+	if (ts == NULL)
+		return NULL;
+
+	ts->tasks = malloc(sizeof(task) * MAX_NUMBER_TASKS);
+	
+	if (ts->tasks == NULL) {
+		free(ts);
+		return NULL;
+	}
+	
+	ts->size = 0;
+
+	return ts;
 }
 
 void bubble_sort(unsigned int *array, int array_size) {
@@ -167,39 +235,39 @@ void sort_by_decreasing_utilization_factor(taskset *ts) {
 	free(temp);
 }
 
-void sort_by_increasing_empty_space(cpu *c) {
+void sort_by_increasing_empty_space(vm *v) {
 	unsigned int i, j;
-	core * temp = malloc(sizeof(core));
+	cpu * temp = malloc(sizeof(cpu));
 	
-	for (i = c->n_cores - 1; i > 0; i--)
+	for (i = v->n_cpus - 1; i > 0; i--)
 		for (j = 0; j < i; j++)
-			if (c->cores[j].u < c->cores[j + 1].u) {
-				*temp = c->cores[j + 1];
-				c->cores[j + 1] = c->cores[j];
-				c->cores[j] = *temp;
+			if (v->cpus[j].u < v->cpus[j + 1].u) {
+				*temp = v->cpus[j + 1];
+				v->cpus[j + 1] = v->cpus[j];
+				v->cpus[j] = *temp;
 			}
 	free(temp);
 }
 
-void sort_by_decreasing_empty_space(cpu *c) {
-	unsigned int i, j, n_cores = 0;
-	core * temp = malloc(sizeof(core));
+void sort_by_decreasing_empty_space(vm *v) {
+	unsigned int i, j, n_cpus = 0;
+	cpu * temp = malloc(sizeof(cpu));
 
-	sort_by_increasing_empty_space(c);
+	sort_by_increasing_empty_space(v);
 
-	for (i = 0; i < c->n_cores; i++)
-		if(c->cores[i].u > 0)
-			n_cores++;
+	for (i = 0; i < v->n_cpus; i++)
+		if(v->cpus[i].u > 0)
+			n_cpus++;
 
-	if(n_cores == 0)
-		n_cores++;
+	if(n_cpus == 0)
+		n_cpus++;
 	
-	for (i = n_cores - 1; i > 0; i--)
+	for (i = n_cpus - 1; i > 0; i--)
 		for (j = 0; j < i; j++)
-			if (c->cores[j].u > c->cores[j + 1].u) {
-				*temp = c->cores[j + 1];
-				c->cores[j + 1] = c->cores[j];
-				c->cores[j] = *temp;
+			if (v->cpus[j].u > v->cpus[j + 1].u) {
+				*temp = v->cpus[j + 1];
+				v->cpus[j + 1] = v->cpus[j];
+				v->cpus[j] = *temp;
 			}
 	free(temp);
 }
@@ -218,16 +286,16 @@ void sort_taskest_by_id(taskset *ts) {
 	free(temp);
 }
 
-void sort_cores_by_id(cpu *c) {
+void sort_cpus_by_id(vm *v) {
 	unsigned int i, j;
-	core * temp = malloc(sizeof(core));
+	cpu * temp = malloc(sizeof(cpu));
 	
-	for (i = c->n_cores - 1; i > 0; i--)
+	for (i = v->n_cpus - 1; i > 0; i--)
 		for (j = 0; j < i; j++)
-			if (c->cores[j].id > c->cores[j + 1].id) {
-				*temp = c->cores[j + 1];
-				c->cores[j + 1] = c->cores[j];
-				c->cores[j] = *temp;
+			if (v->cpus[j].id > v->cpus[j + 1].id) {
+				*temp = v->cpus[j + 1];
+				v->cpus[j + 1] = v->cpus[j];
+				v->cpus[j] = *temp;
 			}
 	free(temp);
 }

@@ -1,8 +1,6 @@
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/utilization_factor.h>
-#include <task/testing_set.h>
 #include <utilities/utilities.h>
+
+#include <task/testing_set.h>
 
 int testing_set_fp(taskset *ts, unsigned int *points, unsigned int i) {
 	unsigned int j, k, index, already_present, n_points = 0;
@@ -15,7 +13,7 @@ int testing_set_fp(taskset *ts, unsigned int *points, unsigned int i) {
 	for (j = 0; j < i; j++) {
 		k = 1;
 		while (k * ts->tasks[j].T < ts->tasks[i].D) {
-			if (n_points == MAX_SCHEDULING_POINTS) 
+			if (n_points == MAX_TESTING_SET_SIZE) 
 				return n_points;
 			
 			already_present = 0;
@@ -46,12 +44,10 @@ int testing_set_edf(taskset *ts, unsigned int *points) {
 	H = lcm(ts);
 	L = my_min(H, my_max(Dmax, Lstar));
 	
-	//printf("\n\n U = %f\n Lstar = %f\n Dmax = %d\n H = %d\n L = %f\n\n", utilization_factor(ts), Lstar, Dmax, H, L);
-	
 	for (i = 0; i < ts->size; i++) {
 		k = 0;
 		while (k * ts->tasks[i].T + ts->tasks[i].D <= L) {
-			if (n_points == MAX_SCHEDULING_POINTS)
+			if (n_points == MAX_TESTING_SET_SIZE)
 				return n_points;
 			
 			already_present = 0;
