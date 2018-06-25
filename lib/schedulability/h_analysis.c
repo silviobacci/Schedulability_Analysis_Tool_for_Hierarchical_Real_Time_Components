@@ -6,6 +6,44 @@
 
 #include <schedulability/h_analysis.h>
 
+void print_h_schedulability(unsigned int is_schedulable, s_algorithm a, periodic_server * ps, FILE *f) {
+	if(is_schedulable)
+		fprintf(f, "\nThe taskset is schedulable under %s with the specified periodic server (Qs = %u, Ts = %u).\n", s_algorithm_to_string(a), ps->Qs, ps->Ts);
+	else
+		fprintf(f, "\nThe taskset is NOT schedulable under %s with the specified periodic server (Qs = %u, Ts = %u).\n", s_algorithm_to_string(a), ps->Qs, ps->Ts);
+}
+
+void print_h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f){
+	unsigned int testing_set[MAX_TESTING_SET_SIZE], i;
+	int j, n_testing_set;
+
+	for(i = 0; i < ts->size; i++)
+		if ((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
+			print_testing_set_fp(testing_set, n_testing_set, ts, i, f);
+
+			for (j = 0; j < n_testing_set; j++)
+				fprintf(f, "\t dbf(%d) = %u; sbf(%d) = %u\n", testing_set[j], workload(ts, i, testing_set[j]), testing_set[j], sbf(ps, testing_set[j]));
+
+			fprintf(f, "\n");
+		}
+}
+
+void print_h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
+	unsigned int testing_set[MAX_TESTING_SET_SIZE];
+	int i, n_testing_set;
+
+	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
+		print_testing_set_edf(testing_set, n_testing_set, f);
+
+		for (i = 0; i < n_testing_set; i++)
+			fprintf(f, "\t dbf(%d) = %f; sbf(%d) = %u\n", testing_set[i], dbf(ts, testing_set[i]), testing_set[i], sbf(ps, testing_set[i]));
+	}
+}
+
+void print_find_periodic_server(FILE *f) {
+	fprintf(f, "Let's try to find a periodic server that can schedule the entire taskset. ");
+}
+
 unsigned int h_analysis_fp(taskset *ts, periodic_server *ps) {
 	unsigned int testing_set[MAX_TESTING_SET_SIZE], i;
 	int j, n_testing_set;

@@ -1,10 +1,30 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
-#include <utilities/utilities.h>
-
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
 #include <task/task_io.h>
+
+void print_taskset(taskset *ts, FILE *f) {
+	unsigned int i;
+
+	fprintf(f, "The taskset is composed by the following tasks expressed with the (C,D,T) model:\n");
+
+	for (i = 0; i < ts->size; i++)
+		fprintf(f, "\t Task %u : (%u, %u, %u)\n", ts->tasks[i].id, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].T);
+
+	if(ts->is_deadline_costrained)
+		fprintf(f, "Note that the taskset has the deadlines that less than or equal to the periods.\n");
+	else
+		fprintf(f, "Note that the taskset has the deadlines always equal to the periods.\n");
+
+	fprintf(f, "\n");
+}
+
+void print_periodic_server(periodic_server *ps, FILE *f) {
+	fprintf(f, "The periodic server has the following paramters: \n\t Qs = %d \n\t Ts = %d \n\n", ps->Qs, ps->Ts);
+}
 
 taskset * create_empty_ts() {
 	taskset *ts = malloc(sizeof(taskset));

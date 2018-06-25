@@ -1,11 +1,8 @@
 #ifndef TASK_IO_H
 #define TASK_IO_H
 
-#include <stdio.h>
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-
+void print_taskset(taskset *ts, FILE *f);
+void print_periodic_server(periodic_server *ps, FILE *f);
 taskset * create_empty_ts();
 periodic_server * create_empty_ps();
 taskset * load_taskset(FILE *f);

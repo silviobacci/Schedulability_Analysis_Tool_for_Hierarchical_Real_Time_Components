@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <task/task_io.h>
-#include <utilities/utilities.h>
-#include <utilities/prints.h>
+#include "task/structs/task.h"
+#include "task/structs/taskset.h"
+#include "task/structs/periodic_server.h"
+#include "task/task_io.h"
+#include "schedulability/sbf.h"
 
 #define 	START_TIME		0
 #define 	END_TIME		100
