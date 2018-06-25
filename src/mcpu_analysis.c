@@ -6,17 +6,18 @@
 #include <utilities/prints.h>
 #include <schedulability/bin_packing.h>
 
-unsigned int (* allocation_algorithm) (taskset *ts, vm* v, FILE * f);
+unsigned int (* allocation_algorithm) (taskset *ts, vm* v, s_algorithm a, FILE * f);
 
 int main(int argc, char *argv[]) {
 	FILE *in;
 	vm *v;
 	taskset *ts;
-	a_algorithm algorithm;
+	a_algorithm allocation;
+	s_algorithm algorithm;
 	unsigned int is_schedulable;
 	
-	if (argc < 4) {
-		fprintf(stderr, "Usage: %s <cpu> <taskset> <allocation>\n", argv[0]);
+	if (argc < 5) {
+		fprintf(stderr, "Usage: %s <cpu> <taskset> <algorithm> <allocation>\n", argv[0]);
 		return -1;
 	}
 
@@ -41,13 +42,14 @@ int main(int argc, char *argv[]) {
 	}
 	
 	algorithm = atoi(argv[3]);
+	allocation = atoi(argv[4]);
 	
-	if (algorithm < BF || algorithm > FFD) {
+	if (allocation < BF || allocation > FFD) {
 		fprintf(stderr, "Error loading allocation algorithm!\n");
 			return -3;
 	}
 
-	switch(algorithm) {
+	switch(allocation) {
 		case BF:
 			allocation_algorithm = best_fit_allocation;
 			break;
@@ -69,13 +71,13 @@ int main(int argc, char *argv[]) {
 	printf("\n-------------------- M-CPU SCHEDULING ANALYSIS ---------------------");
 	printf("\n--------------------------------------------------------------------\n\n");
 	
-	print_a_algorithm(algorithm, stdout);
+	print_a_algorithm(allocation, stdout);
 	print_vm(v, stdout);
 	print_taskset(ts, stdout);
 	
-	is_schedulable = allocation_algorithm(ts, v, stdout);
+	is_schedulable = allocation_algorithm(ts, v, algorithm, stdout);
 	
-	print_mcpu_schedulability(is_schedulable, algorithm, stdout);
+	print_mcpu_schedulability(is_schedulable, allocation, stdout);
 
 	if(is_schedulable)
 		print_vm_load(v, stdout);

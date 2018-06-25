@@ -43,26 +43,36 @@ static taskset *create_taskset(taskset *previous_ts, task to_add) {
 	return new_ts;
 }
 
-unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index) {
+unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index, s_algorithm a) {
 	double u = (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
 	double expected_u = (double) u + v->cpus[cpu_index].u;
+	unsigned int is_schedulable = 0;
+	
 	if(expected_u > v->cpus[cpu_index].max_u)
-		return 0;
+		return is_schedulable;
 		
 	taskset * temp = temp_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
 
-	if(strcmp(v->cpus[cpu_index].algorithm, "RM") == 0 || strcmp(v->cpus[cpu_index].algorithm, "rm") == 0)
-		return h_analysis_fp(temp, v->cpus[cpu_index].ps);
-		
-	if(strcmp(v->cpus[cpu_index].algorithm, "RM") == 0 || strcmp(v->cpus[cpu_index].algorithm, "rm") == 0)
-		return h_analysis_fp(temp, v->cpus[cpu_index].ps);
-		
-	if(strcmp(v->cpus[cpu_index].algorithm, "EDF") == 0 || strcmp(v->cpus[cpu_index].algorithm, "edf") == 0)
-		return h_analysis_edf(temp, v->cpus[cpu_index].ps);
+	switch(a) {
+		case FP:
+			is_schedulable = h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			break;
+		case RM:
+			sort_by_increasing_periods(ts);
+			is_schedulable = h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			break;
+		case DM:
+			sort_by_increasing_deadlines(ts);
+			is_schedulable = h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			break;
+		case EDF:
+			is_schedulable = h_analysis_edf(temp, v->cpus[cpu_index].ps);
+			break;
+	}
 
 	free(temp);
 		
-	return 0;
+	return is_schedulable;
 }
 
 void allocate_vm(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index) {

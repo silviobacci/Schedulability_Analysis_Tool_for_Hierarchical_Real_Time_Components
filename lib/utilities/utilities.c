@@ -5,6 +5,9 @@
 char * s_algorithm_to_string(s_algorithm a) {
 	char * ret = malloc(sizeof(char) * 5);
 	switch(a) {
+		case FP:
+			ret = "FP";
+			break;
 		case RM:
 			ret = "RM";
 			break;
@@ -87,6 +90,16 @@ unsigned int max_deadline(taskset *ts) {
 	return MAX;
 }
 
+unsigned int max_period(taskset *ts) {
+	unsigned int i, MAX = ts->tasks[0].T;
+
+	for(i = 1; i < ts->size; i++)
+		if(ts->tasks[i].T > MAX)
+			MAX = ts->tasks[i].T;
+	
+	return MAX;
+}
+
 unsigned int min_period(taskset *ts) {
 	unsigned int i, MIN = ts->tasks[0].T;
 
@@ -119,24 +132,6 @@ unsigned int lcm(taskset *ts) {
 			lcm_temp = lcm_(ts->tasks[i].T, lcm_temp);
 
     return lcm_temp;
-}
-
-taskset * create_empty_ts() {
-	taskset *ts = malloc(sizeof(taskset));
-
-	if (ts == NULL)
-		return NULL;
-
-	ts->tasks = malloc(sizeof(task) * MAX_NUMBER_TASKS);
-	
-	if (ts->tasks == NULL) {
-		free(ts);
-		return NULL;
-	}
-	
-	ts->size = 0;
-
-	return ts;
 }
 
 void bubble_sort(unsigned int *array, int array_size) {

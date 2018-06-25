@@ -39,7 +39,7 @@ void print_vm(vm *v, FILE *f) {
 	fprintf(f, "The vm is composed by the following %d cpus:\n", v->n_cpus);
 
 	for (i = 0; i < v->n_cpus; i++)
-		fprintf(f, "\t Cpu %u :\n\t\t Scheduling Algorithm : %s\n\t\t Periodic Server : (Qs = %d,  Ts = %d)\n\t\t U : %f\n\n", v->cpus[i].id, v->cpus[i].algorithm, v->cpus[i].ps->Qs, v->cpus[i].ps->Ts, v->cpus[i].u);
+		fprintf(f, "\t Cpu %u :\n\t\t Periodic Server : (Qs = %d,  Ts = %d)\n\t\t U : %f\n\n", v->cpus[i].id, v->cpus[i].ps->Qs, v->cpus[i].ps->Ts, v->cpus[i].u);
 }
 
 void print_vm_load(vm *v, FILE *f) {

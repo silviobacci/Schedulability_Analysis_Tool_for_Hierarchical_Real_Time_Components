@@ -5,7 +5,7 @@
 
 #include <schedulability/bin_packing.h>
 
-unsigned int best_fit_allocation(taskset *ts, vm* v, FILE * f) {
+unsigned int best_fit_allocation(taskset *ts, vm* v, s_algorithm a, FILE * f) {
 	unsigned int i, j;
 	
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the best fit heuristic algorithm:\n");
@@ -14,7 +14,7 @@ unsigned int best_fit_allocation(taskset *ts, vm* v, FILE * f) {
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		j = 0;
 		fprintf(f, "\tCore %d : ", v->cpus[j].id);
-		while(!schedulable(ts, i, v, j) && (j < v->n_cpus)) {
+		while(!schedulable(ts, i, v, j, a) && (j < v->n_cpus)) {
 			j++;
 			fprintf(f, "UNSCHEDULABLE\n");
 			fprintf(f, "\tCore %d : ", v->cpus[j].id);
@@ -33,7 +33,7 @@ unsigned int best_fit_allocation(taskset *ts, vm* v, FILE * f) {
 	return 1;
 }
 
-unsigned int first_fit_allocation(taskset *ts, vm* v, FILE * f) {
+unsigned int first_fit_allocation(taskset *ts, vm* v, s_algorithm a, FILE * f) {
 	unsigned int i, j;
 	
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the first fit heuristic algorithm:\n");
@@ -41,7 +41,7 @@ unsigned int first_fit_allocation(taskset *ts, vm* v, FILE * f) {
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		j = 0;
 		fprintf(f, "\tCore %d : ", v->cpus[j].id);
-		while(!schedulable(ts, i, v, j) && (j < v->n_cpus)) {
+		while(!schedulable(ts, i, v, j, a) && (j < v->n_cpus)) {
 			j++;
 			fprintf(f, "UNSCHEDULABLE\n");
 			fprintf(f, "\tCore %d : ", v->cpus[j].id);
@@ -60,14 +60,14 @@ unsigned int first_fit_allocation(taskset *ts, vm* v, FILE * f) {
 	return 1;
 }
 
-unsigned int next_fit_allocation(taskset *ts, vm* v, FILE * f) {
+unsigned int next_fit_allocation(taskset *ts, vm* v, s_algorithm a, FILE * f) {
 	unsigned int i, j = 0;
 	
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the next fit heuristic algorithm:\n");
 	for (i = 0; i < ts->size; i++) {
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		fprintf(f, "\tCore %d : ", v->cpus[j].id);
-		while(!schedulable(ts, i, v, j) && (j < v->n_cpus)) {
+		while(!schedulable(ts, i, v, j, a) && (j < v->n_cpus)) {
 			j++;
 			fprintf(f, "UNSCHEDULABLE\n");
 			fprintf(f, "\tCore %d : ", v->cpus[j].id);
@@ -86,7 +86,7 @@ unsigned int next_fit_allocation(taskset *ts, vm* v, FILE * f) {
 	return 1;
 }
 
-unsigned int worst_fit_allocation(taskset *ts, vm* v, FILE * f) {
+unsigned int worst_fit_allocation(taskset *ts, vm* v, s_algorithm a, FILE * f) {
 	unsigned int i, j;
 	
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the worst fit heuristic algorithm:\n");
@@ -95,7 +95,7 @@ unsigned int worst_fit_allocation(taskset *ts, vm* v, FILE * f) {
 		j = 0;
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		fprintf(f, "\tCore %d : ", v->cpus[j].id);
-		while(!schedulable(ts, i, v, j) && (j < v->n_cpus)) {
+		while(!schedulable(ts, i, v, j, a) && (j < v->n_cpus)) {
 			j++;
 			fprintf(f, "UNSCHEDULABLE\n");
 			fprintf(f, "\tCore %d : ", v->cpus[j].id);
@@ -114,7 +114,7 @@ unsigned int worst_fit_allocation(taskset *ts, vm* v, FILE * f) {
 	return 1;
 }
 
-unsigned int first_fit_decreasing_allocation(taskset *ts, vm* v, FILE * f) {
+unsigned int first_fit_decreasing_allocation(taskset *ts, vm* v, s_algorithm a, FILE * f) {
 	unsigned int i, j;
 	sort_by_decreasing_utilization_factor(ts);
 	
@@ -123,7 +123,7 @@ unsigned int first_fit_decreasing_allocation(taskset *ts, vm* v, FILE * f) {
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		j = 0;
 		fprintf(f, "\tCore %d : ", v->cpus[j].id);
-		while(!schedulable(ts, i, v, j) && (j < v->n_cpus)) {
+		while(!schedulable(ts, i, v, j, a) && (j < v->n_cpus)) {
 			j++;
 			fprintf(f, "UNSCHEDULABLE\n");
 			fprintf(f, "\tCore %d : ", v->cpus[j].id);

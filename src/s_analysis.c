@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 	
 	algorithm = atoi(argv[2]);
 	
-	if (algorithm < RM || algorithm > EDF) {
+	if (algorithm < FP || algorithm > EDF) {
 		fprintf(stderr, "Error loading algorithm!\n");
 			return -3;
 	}
@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
 		case DM:
 			sort_by_increasing_deadlines(ts);
 			break;
+		case FP:
 		case EDF:
 			break;
 	}

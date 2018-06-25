@@ -5,7 +5,6 @@
 
 typedef struct cpu_ {
 	unsigned int id;
-	char * algorithm;
 	double max_u;
 	double u;
 	periodic_server * ps;

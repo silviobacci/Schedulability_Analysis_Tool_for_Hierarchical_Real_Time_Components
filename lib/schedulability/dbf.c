@@ -2,14 +2,6 @@
 
 #include <schedulability/dbf.h>
 
-double ulub_fp(taskset *ts) {
-	return ts->size * ((2 ^ (1 / ts->size)) - 1);
-}
-
-int ulub_edf() {
-	return 1;
-}
-
 unsigned int workload(taskset *ts, unsigned int i, unsigned int t) {
 	unsigned int j, res = ts->tasks[i].C;
 	

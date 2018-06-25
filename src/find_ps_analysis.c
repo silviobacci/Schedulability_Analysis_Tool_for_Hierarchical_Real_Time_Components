@@ -11,10 +11,9 @@ int main(int argc, char *argv[]) {
 	taskset *ts;
 	periodic_server * ps;
 	s_algorithm algorithm;
-	unsigned int is_schedulable;
 	
-	if (argc < 5) {
-		fprintf(stderr, "Usage: %s <taskset> <Qs> <Ts> <algorithm>\n", argv[0]);
+	if (argc < 3) {
+		fprintf(stderr, "Usage: %s <taskset> <algorithm>\n", argv[0]);
 		return -1;
 	}
 
@@ -28,11 +27,9 @@ int main(int argc, char *argv[]) {
 		return -3;
 	}
 	
-	ps = load_periodic_server(atoi(argv[2]), atoi(argv[3]));
+	algorithm = atoi(argv[2]);
 	
-	algorithm = atoi(argv[4]);
-	
-	if (algorithm < RM || algorithm > EDF) {
+	if (algorithm < FP || algorithm > EDF) {
 		fprintf(stderr, "Error loading algorithm!\n");
 			return -3;
 	}
@@ -50,35 +47,21 @@ int main(int argc, char *argv[]) {
 	}
 	
 	printf("\n--------------------------------------------------------------------");
-	printf("\n---------------- HIERARCHICAL SCHEDULING ANALYSIS ------------------");
+	printf("\n----------------- FIND PERIODIC SERVER ANALYSIS --------------------");
 	printf("\n--------------------------------------------------------------------\n\n");
 	
 	print_taskset(ts, stdout);
+	print_find_periodic_server(stdout);
+	ps = find_periodic_server(ts, algorithm);
 	print_periodic_server(ps, stdout);
-	
-	if(algorithm == EDF) {
-		print_h_analysis_edf(ts, ps, stdout);
-		is_schedulable = h_analysis_edf(ts, ps);
-	}
-	else {
-		print_h_analysis_fp(ts, ps, stdout);
-		is_schedulable = h_analysis_fp(ts, ps);
-	}
-	
-	print_h_schedulability(is_schedulable, algorithm, ps, stdout);
 
-	if(!is_schedulable){
-		print_find_periodic_server(stdout);
-		ps = find_periodic_server(ts, algorithm);
-		print_periodic_server(ps, stdout);
-		if(algorithm == EDF) 
-			print_h_analysis_edf(ts, ps, stdout); 
-		else 
-			print_h_analysis_fp(ts, ps, stdout);
-	}
+	if(algorithm == EDF) 
+		print_h_analysis_edf(ts, ps, stdout); 
+	else 
+		print_h_analysis_fp(ts, ps, stdout);
 
 	printf("\n--------------------------------------------------------------------");
-	printf("\n-------------- END HIERARCHICAL SCHEDULING ANALYSIS ----------------");
+	printf("\n--------------- END FIND PERIODIC SERVER ANALYSIS ------------------");
 	printf("\n--------------------------------------------------------------------\n\n");
 
 	return 0;
