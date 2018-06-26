@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 	
 	algorithm = atoi(argv[4]);
 	
-	if (algorithm < RM || algorithm > EDF) {
+	if (algorithm < FP || algorithm > EDF) {
 		fprintf(stderr, "Error loading algorithm!\n");
 			return -3;
 	}

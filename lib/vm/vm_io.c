@@ -17,7 +17,7 @@ void print_vm(vm *v, FILE *f) {
 	fprintf(f, "The vm is composed by the following %d cpus:\n", v->n_cpus);
 
 	for (i = 0; i < v->n_cpus; i++)
-		fprintf(f, "\t Cpu %u :\n\t\t Periodic Server : (Qs = %d,  Ts = %d)\n\t\t U : %f\n\n", v->cpus[i].id, v->cpus[i].ps->Qs, v->cpus[i].ps->Ts, v->cpus[i].u);
+		fprintf(f, "\t Cpu %u :\n\t\t Periodic Server : (Qs = %d,  Ts = %d)\n\t\t U : %f\n\t\t MAX U : %f\n\n", v->cpus[i].id, v->cpus[i].ps->Qs, v->cpus[i].ps->Ts, v->cpus[i].u, v->cpus[i].max_u);
 }
 
 void print_vm_load(vm *v, FILE *f) {
@@ -49,6 +49,8 @@ void print_vm_load(vm *v, FILE *f) {
 				fprintf(f, " ");
 		fprintf(f, "]\n");
 	}
+	
+	fprintf(f, "\n");
 }
 
 vm * create_empty_vm() {
@@ -67,25 +69,18 @@ vm * create_empty_vm() {
 	return v;
 }
 
-vm * load_vm(FILE *f) {
-	size_t res;
-	unsigned int Qs, Ts, i = 0;
+vm * load_vm(FILE *f, int ps_present) {
+	unsigned int Qs = 0, Ts = 0, i = 0;
 	vm * v = create_empty_vm();
 
-	res = fscanf(f, "%u %u %lf\n", &Qs, &Ts, &v->cpus[i].max_u);
-
-	while(!feof(f) && (i < MAX_NUMBER_CPUS)) {
-		if(res == 1)
-			fscanf(f, "%lf\n", &v->cpus[i].max_u);
-		else
-			fscanf(f, "%u %u %lf\n", &Qs, &Ts, &v->cpus[i].max_u);
-
-		printf("res = %d\n", res);
-		if (res == 3) {
+	while(!feof(f) && i < MAX_NUMBER_CPUS) {
+		if(ps_present) {
+			fscanf(f, "%lf %u %u\n", &v->cpus[i].max_u, &Qs, &Ts);
 			v->cpus[i].ps = load_periodic_server(Qs, Ts);
 			v->ps_set = 1;
 		}
 		else {
+			fscanf(f, "%lf\n", &v->cpus[i].max_u);
 			v->cpus[i].ps = create_empty_ps();
 			v->ps_set = 0;
 		}
@@ -98,4 +93,19 @@ vm * load_vm(FILE *f) {
 	v->n_cpus = i;
 
 	return v;
+}
+
+int is_ps_in_file(FILE *f, char * filename) {
+	unsigned int ret = 0, tmp2, tmp3;
+	double tmp1;
+	
+	if(fscanf(f, "%lf %u %u\n", &tmp1, &tmp2, &tmp3) == 3)
+		ret = 1;
+		
+	fclose(f);
+	
+	if ((f = fopen(filename, "r")) == NULL)
+		return -1;
+	
+	return ret;
 }

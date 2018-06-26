@@ -48,7 +48,6 @@ int merge_testing_sets(unsigned int *ts1, unsigned int ts1_points, unsigned int 
 
 	for (i = 0; i < ts1_points + ts2_points && i < MAX_TESTING_SET_SIZE;) {
 		if (j < ts1_points && k < ts2_points) {
-
 			if (ts1[j] < ts2[k]) {
 				points[i] = ts1[j];
 				j++;
@@ -75,7 +74,7 @@ int merge_testing_sets(unsigned int *ts1, unsigned int ts1_points, unsigned int 
 		}
 	}
 
-	n_points = i - 1;
+	n_points = i;
 
 	for (i = 0; i < n_points; i++)
 		for (j = i + 1; j < n_points;)

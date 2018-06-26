@@ -7,6 +7,7 @@
 void print_vm(vm *v, FILE *f);
 void print_vm_load(vm *v, FILE *f);
 vm * create_empty_vm();
-vm * load_vm(FILE *f);
+vm * load_vm(FILE *f, int ps_present);
+int is_ps_in_file(FILE *f, char * filename);
 
 #endif
