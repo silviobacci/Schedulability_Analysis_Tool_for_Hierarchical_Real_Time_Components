@@ -59,25 +59,12 @@ int main(int argc, char *argv[]) {
 	print_taskset(ts, stdout);
 	print_periodic_server(ps, stdout);
 	
-	if(algorithm == EDF) {
-		print_h_analysis_edf(ts, ps, stdout);
-		is_schedulable = h_analysis_edf(ts, ps);
-	}
-	else {
-		print_h_analysis_fp(ts, ps, stdout);
-		is_schedulable = h_analysis_fp(ts, ps);
-	}
-	
+	is_schedulable = (algorithm == EDF) ? h_analysis_edf(ts, ps, stdout) : h_analysis_fp(ts, ps, stdout);
 	print_h_schedulability(is_schedulable, algorithm, ps, stdout);
 
 	if(!is_schedulable){
-		print_find_periodic_server(stdout);
-		ps = find_periodic_server(ts, algorithm);
-		print_periodic_server(ps, stdout);
-		if(algorithm == EDF) 
-			print_h_analysis_edf(ts, ps, stdout); 
-		else 
-			print_h_analysis_fp(ts, ps, stdout);
+		ps = find_periodic_server(ts, algorithm, -1, stdout);
+		is_schedulable = (algorithm == EDF) ? h_analysis_edf(ts, ps, stdout) : h_analysis_fp(ts, ps, stdout);
 	}
 
 	printf("\n--------------------------------------------------------------------");

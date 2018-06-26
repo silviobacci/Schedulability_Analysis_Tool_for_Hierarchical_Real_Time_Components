@@ -53,14 +53,12 @@ int main(int argc, char *argv[]) {
 	printf("\n--------------------------------------------------------------------\n\n");
 	
 	print_taskset(ts, stdout);
-	print_find_periodic_server(stdout);
-	ps = find_periodic_server(ts, algorithm);
-	print_periodic_server(ps, stdout);
+	ps = find_periodic_server(ts, algorithm, -1, stdout);
 
 	if(algorithm == EDF) 
-		print_h_analysis_edf(ts, ps, stdout); 
+		h_analysis_edf(ts, ps, stdout); 
 	else 
-		print_h_analysis_fp(ts, ps, stdout);
+		h_analysis_fp(ts, ps, stdout);
 
 	printf("\n--------------------------------------------------------------------");
 	printf("\n--------------- END FIND PERIODIC SERVER ANALYSIS ------------------");

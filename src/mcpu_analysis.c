@@ -81,13 +81,9 @@ int main(int argc, char *argv[]) {
 		print_vm_load(v, stdout);
 		if(!v->ps_set) {
 			sort_cpus_by_id(v);
-			for(i = 0; i < v->n_cpus; i++) {
-				if(v->cpus[i].u > 0) {
-					v->cpus[i].ps = find_periodic_server(v->cpus[i].ts, algorithm);
-					print_find_periodic_server_vm(v->cpus[i].id, stdout);	
-					print_periodic_server(v->cpus[i].ps, stdout);
-				}
-			}
+			for(i = 0; i < v->n_cpus; i++)
+				if(v->cpus[i].u > 0)
+					v->cpus[i].ps = find_periodic_server(v->cpus[i].ts, algorithm, i, stdout);
 		}
 	}
 	

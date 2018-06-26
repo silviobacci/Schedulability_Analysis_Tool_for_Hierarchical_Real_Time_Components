@@ -52,18 +52,18 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 
 	switch(a) {
 		case FP:
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp) : h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 		case RM:
 			sort_by_increasing_periods(ts);
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp) : h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 		case DM:
 			sort_by_increasing_deadlines(ts);
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp) : h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 		case EDF:
-			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp) : h_analysis_edf(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp, NULL) : h_analysis_edf(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 	}
 

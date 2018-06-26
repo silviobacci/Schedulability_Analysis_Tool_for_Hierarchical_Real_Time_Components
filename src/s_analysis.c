@@ -56,15 +56,7 @@ int main(int argc, char *argv[]) {
 	print_s_algorithm(algorithm, stdout);
 	print_taskset(ts, stdout);
 	
-	if(algorithm == EDF) {
-		print_s_analysis_edf(ts, stdout);
-		is_schedulable = s_analysis_edf(ts);
-	}
-	else {
-		print_s_analysis_fp(ts, stdout);
-		is_schedulable = s_analysis_fp(ts);
-	}
-
+	is_schedulable = (algorithm == EDF) ? s_analysis_edf(ts, stdout) : s_analysis_fp(ts, stdout);
 	print_s_schedulability(is_schedulable, algorithm, stdout);
 
 	printf("\n--------------------------------------------------------------------");
