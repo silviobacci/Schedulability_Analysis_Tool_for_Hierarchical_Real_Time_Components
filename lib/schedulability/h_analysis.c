@@ -1,10 +1,17 @@
-#include <utilities/utilities.h>
+#include <math.h>
+#include <stdio.h>
+
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
 #include <task/task_io.h>
 #include <task/testing_set.h>
+#include <task/utilities.h>
 #include <schedulability/sbf.h>
 #include <schedulability/dbf.h>
-
 #include <schedulability/h_analysis.h>
+
+#define MAX_SERVER_BANDWITH 0.8
 
 void print_h_schedulability(unsigned int is_schedulable, s_algorithm a, periodic_server * ps, FILE *f) {
 	if(is_schedulable)
@@ -70,22 +77,23 @@ unsigned int h_analysis_edf(taskset *ts, periodic_server *ps){
 }
 
 periodic_server * find_periodic_server(taskset *ts, s_algorithm a) {
-	unsigned int start_Qs, end_Qs, Qs, Ts, is_schedulable;
-	double temp_bandwith, max_bandwith = 0.0;
+	unsigned int start_Qs, end_Qs, Qs, start_Ts, end_Ts, Ts, is_schedulable;
+	double temp_bandwith, best_bandwith = 0.0;
 	periodic_server * temp_ps, * ps = create_empty_ps();
 
-	printf("Ts from %d to %d\n", min_period(ts), 2 * max_period(ts));
-	for(Ts = min_period(ts); Ts < 2 * max_period(ts); Ts++) {
-		start_Qs = my_ceil(Ts * max_bandwith, 1);
-		end_Qs = my_ceil(Ts * 0.8, 1);
-		printf("Qs = from %d to %d Ts = %d\n", start_Qs, end_Qs, Ts);
-		for(Qs = start_Qs; Qs <= end_Qs; Qs++) {
+	start_Ts = min_period(ts);
+	end_Ts = 2 * max_period(ts);
+	for(Ts = start_Ts; Ts < end_Ts; Ts++) {
+		start_Qs = (unsigned int) ceil((double) Ts * best_bandwith);
+		end_Qs = (unsigned int) ceil((double) Ts * MAX_SERVER_BANDWITH);
+		for(Qs = start_Qs; Qs < end_Qs; Qs++) {
 			temp_ps = load_periodic_server(Qs, Ts);
 			temp_bandwith = (double) temp_ps->Qs / temp_ps->Ts;
+			
 			is_schedulable = (a == EDF) ? h_analysis_edf(ts, temp_ps) : h_analysis_fp(ts, temp_ps);
-			if(is_schedulable && temp_bandwith > max_bandwith) {
+			if(is_schedulable && temp_bandwith > best_bandwith) {
 				ps = temp_ps;
-				max_bandwith = temp_bandwith;
+				best_bandwith = temp_bandwith;
 			}
 		}
 	}

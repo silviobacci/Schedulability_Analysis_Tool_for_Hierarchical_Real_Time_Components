@@ -2,6 +2,7 @@
 
 #include <task/structs/task.h>
 #include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
 #include <task/utilities.h>
 #include <task/testing_set.h>
 
@@ -40,6 +41,53 @@ void print_testing_set_fp(unsigned int *testing_set, unsigned int n_testing_set,
 		fprintf(f, "%u ", testing_set[i]);
 	
 	fprintf(f, "}\n");
+}
+
+int merge_testing_sets(unsigned int *ts1, unsigned int ts1_points, unsigned int *ts2, unsigned int ts2_points, unsigned int* points) {
+	unsigned int i, j = 0, k = 0, n_points = 0;
+
+	for (i = 0; i < ts1_points + ts2_points && i < MAX_TESTING_SET_SIZE;) {
+		if (j < ts1_points && k < ts2_points) {
+
+			if (ts1[j] < ts2[k]) {
+				points[i] = ts1[j];
+				j++;
+			}
+			else {
+				points[i] = ts2[k];
+				k++;
+			}
+			i++;
+		}
+		else if (j == ts1_points) {
+			for (; i < ts1_points + ts2_points && i < MAX_TESTING_SET_SIZE;) {
+				points[i] = ts2[k];
+				k++;
+				i++;
+			}
+		}
+		else {
+			for (; i < ts1_points + ts2_points && i < MAX_TESTING_SET_SIZE;) {
+				points[i] = ts1[j];
+				j++;
+				i++;
+			}
+		}
+	}
+
+	n_points = i - 1;
+
+	for (i = 0; i < n_points; i++)
+		for (j = i + 1; j < n_points;)
+			if (points[j] == points[i]) {
+				for (k = j; k < n_points; k++)
+					points[k] = points[k + 1];
+				n_points--;
+			} 
+			else
+				j++;
+
+	return n_points;
 }
 
 int testing_set_fp(taskset *ts, unsigned int *points, unsigned int i) {
@@ -103,6 +151,19 @@ int testing_set_edf(taskset *ts, unsigned int *points) {
 	}
 
 	bubble_sort(points, n_points);
+
+	return n_points;
+}
+
+int testing_set_sbf(periodic_server *ps, unsigned int *points, unsigned int max) {
+	unsigned int n = 2, n_points = 0;
+	
+	while (n * ps->Ts - ps->Qs < max) {
+		if (n_points == MAX_TESTING_SET_SIZE) 
+			return n_points;
+			
+		points[n_points++] =  n++ * ps->Ts - ps->Qs;
+	}
 
 	return n_points;
 }

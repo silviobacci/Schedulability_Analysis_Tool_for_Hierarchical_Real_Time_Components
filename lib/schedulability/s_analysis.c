@@ -1,5 +1,10 @@
-#include <utilities/utilities.h>
+#include <stdio.h>
+
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
 #include <task/testing_set.h>
+#include <task/utilities.h>
 #include <schedulability/dbf.h>
 
 #include <schedulability/s_analysis.h>

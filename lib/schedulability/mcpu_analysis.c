@@ -1,8 +1,18 @@
 #include <stdio.h>
+#include <stdlib.h>
 
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
+#include <task/task_io.h>
+#include <task/sorting.h>
+#include <vm/structs/cpu.h>
+#include <vm/structs/vm.h>
+#include <vm/utilities.h>
+#include <vm/sorting.h>
+#include <schedulability/s_analysis.h>
+#include <schedulability/h_analysis.h>
 #include <schedulability/mcpu_analysis.h>
-
-#include <schedulability/bin_packing.h>
 
 static taskset *temp_taskset(taskset *previous_ts, task to_add) {
 	unsigned int i = 0;
@@ -38,21 +48,22 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 		return is_schedulable;
 		
 	taskset * temp = temp_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
+	printf("sono qui\n");
 
 	switch(a) {
 		case FP:
-			is_schedulable = h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp) : h_analysis_fp(temp, v->cpus[cpu_index].ps);
 			break;
 		case RM:
 			sort_by_increasing_periods(ts);
-			is_schedulable = h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp) : h_analysis_fp(temp, v->cpus[cpu_index].ps);
 			break;
 		case DM:
 			sort_by_increasing_deadlines(ts);
-			is_schedulable = h_analysis_fp(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp) : h_analysis_fp(temp, v->cpus[cpu_index].ps);
 			break;
 		case EDF:
-			is_schedulable = h_analysis_edf(temp, v->cpus[cpu_index].ps);
+			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp) : h_analysis_edf(temp, v->cpus[cpu_index].ps);
 			break;
 	}
 
@@ -74,7 +85,7 @@ void print_mcpu_schedulability(unsigned int is_schedulable, a_algorithm a, FILE 
 }
 
 void print_mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorithm allocation, FILE * f) {
-	unsigned int i, j;
+	unsigned int i, j = 0;
 	
 	if(allocation == FFD)
 		sort_by_decreasing_utilization_factor(ts);
@@ -102,8 +113,8 @@ void print_mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorithm 
 	}
 }
 
-unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorithm allocation, FILE * f) {
-	unsigned int i, j;
+unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorithm allocation) {
+	unsigned int i, j = 0;
 	
 	if(allocation == FFD)
 		sort_by_decreasing_utilization_factor(ts);
@@ -121,6 +132,10 @@ unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorith
 		
 		allocate_vm(ts, i, v, j);
 	}
+
+	if(v->ps_set)
+		for(i = 0; i < v->n_cpus; i++)
+			find_periodic_server(v->cpus[i].ts, algorithm);
 	
 	return 1;
 }

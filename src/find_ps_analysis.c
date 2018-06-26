@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
 #include <task/task_io.h>
-#include <utilities/utilities.h>
-#include <utilities/prints.h>
+#include <task/sorting.h>
 #include <schedulability/h_analysis.h>
 
 int main(int argc, char *argv[]) {

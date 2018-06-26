@@ -1,9 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <utilities/utilities.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
 #include <task/task_io.h>
+#include <vm/structs/cpu.h>
+#include <vm/structs/vm.h>
 #include <vm/vm_io.h>
+#include <vm/sorting.h>
 
 void print_vm(vm *v, FILE *f) {
 	unsigned int i;
@@ -63,18 +68,31 @@ vm * create_empty_vm() {
 }
 
 vm * load_vm(FILE *f) {
-	int res;
+	size_t res;
 	unsigned int Qs, Ts, i = 0;
 	vm * v = create_empty_vm();
 
+	res = fscanf(f, "%u %u %lf\n", &Qs, &Ts, &v->cpus[i].max_u);
+
 	while(!feof(f) && (i < MAX_NUMBER_CPUS)) {
-		res = fscanf(f, "%u %u %lf\n", &Qs, &Ts, &v->cpus[i].max_u);
+		if(res == 1)
+			fscanf(f, "%lf\n", &v->cpus[i].max_u);
+		else
+			fscanf(f, "%u %u %lf\n", &Qs, &Ts, &v->cpus[i].max_u);
+
+		printf("res = %d\n", res);
+		if (res == 3) {
+			v->cpus[i].ps = load_periodic_server(Qs, Ts);
+			v->ps_set = 1;
+		}
+		else {
+			v->cpus[i].ps = create_empty_ps();
+			v->ps_set = 0;
+		}
 		v->cpus[i].id = i + 1;
 		v->cpus[i].u = 0.0;
 		v->cpus[i].ts = create_empty_ts();
-		v->cpus[i].ps = load_periodic_server(Qs, Ts);
-		if (res == 3)
-			i++;
+		i++;
 	}
 
 	v->n_cpus = i;

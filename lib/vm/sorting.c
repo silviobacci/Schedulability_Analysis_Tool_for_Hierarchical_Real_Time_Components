@@ -2,9 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <utilities/utilities.h>
-
-#include <task/task_io.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
+#include <vm/structs/cpu.h>
+#include <vm/structs/vm.h>
+#include <vm/vm_io.h>
+#include <vm/sorting.h>
 
 void sort_cpus_by_id(vm *v) {
 	unsigned int i, j;
@@ -20,7 +24,7 @@ void sort_cpus_by_id(vm *v) {
 	free(temp);
 }
 
-static void sort_by_increasing_empty_space(vm *v) {
+void sort_by_increasing_empty_space(vm *v) {
 	unsigned int i, j;
 	cpu * temp = malloc(sizeof(cpu));
 	
@@ -34,7 +38,7 @@ static void sort_by_increasing_empty_space(vm *v) {
 	free(temp);
 }
 
-static void sort_by_decreasing_empty_space(vm *v) {
+void sort_by_decreasing_empty_space(vm *v) {
 	unsigned int i, j, n_cpus = 0;
 	cpu * temp = malloc(sizeof(cpu));
 

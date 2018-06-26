@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <utilities/utilities.h>
-
-#include <task/task_io.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
+#include <vm/structs/cpu.h>
+#include <vm/structs/vm.h>
+#include <vm/utilities.h>
 
 void print_a_algorithm(a_algorithm a, FILE *f) {
 	fprintf(f, "The taskset schedulability will be checked using %s as allocation algorithm.\n\n", a_algorithm_to_string(a));

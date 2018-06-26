@@ -1,10 +1,7 @@
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
-#include <utilities/utilities.h>
-
-#include <task/task_io.h>
+#include <task/structs/task.h>
+#include <task/structs/taskset.h>
 
 void sort_taskest_by_id(taskset *ts) {
 	unsigned int i, j;
