@@ -68,6 +68,7 @@ periodic_server * find_periodic_server(taskset *ts, s_algorithm a, int cpu, FILE
 	unsigned int start_Qs, end_Qs, Qs, start_Ts, end_Ts, Ts, is_schedulable;
 	double temp_bandwith, best_bandwith = 1.0;
 	periodic_server * temp_ps, * ps = create_empty_ps();
+	FILE * null = fopen("./null", "r");
 
 	if(cpu > 0)	
 		fprintf(f, "Cpu %d : finding a periodic server for the taskset. ", cpu);
@@ -77,15 +78,14 @@ periodic_server * find_periodic_server(taskset *ts, s_algorithm a, int cpu, FILE
 	start_Ts = min_period(ts);
 	end_Ts = 2 * max_period(ts);
 	for(Ts = start_Ts; Ts < end_Ts; Ts++) {
-		//start_Qs = (unsigned int) ceil((double) Ts * best_bandwith);
-		//end_Qs = (unsigned int) ceil((double) Ts * MAX_SERVER_BANDWITH);
-		start_Qs = 1;
+		//start_Qs = 0;
+		start_Qs = (unsigned int) ceil((double) Ts * utilization_factor(ts));
 		end_Qs = (unsigned int) ceil((double) Ts * best_bandwith);
 		for(Qs = start_Qs; Qs <= end_Qs; Qs++) {
 			temp_ps = load_periodic_server(Qs, Ts);
 			temp_bandwith = (double) temp_ps->Qs / temp_ps->Ts;
 			
-			is_schedulable = (a == EDF) ? h_analysis_edf(ts, temp_ps, NULL) : h_analysis_fp(ts, temp_ps, NULL);
+			is_schedulable = (a == EDF) ? h_analysis_edf(ts, temp_ps, null) : h_analysis_fp(ts, temp_ps, null);
 			if(is_schedulable && temp_bandwith < best_bandwith) {
 				ps = temp_ps;
 				best_bandwith = temp_bandwith;

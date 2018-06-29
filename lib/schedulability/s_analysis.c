@@ -52,5 +52,5 @@ unsigned int s_analysis_edf(taskset *ts, FILE *f) {
 		fprintf(f, "\n");
 	}
 
-	return is_schedulable;
+	return is_schedulable && utilization_factor(ts) < 1;
 }

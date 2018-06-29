@@ -4,6 +4,9 @@
 
 #include <task/structs/task.h>
 #include <task/structs/taskset.h>
+#include <task/structs/periodic_server.h>
+#include <task/testing_set.h>
+#include <schedulability/dbf.h>
 #include <task/utilities.h>
 
 void print_s_algorithm(s_algorithm a, FILE *f) {
@@ -42,6 +45,25 @@ double utilization_factor(taskset *ts) {
 		U += (double) utilization_factor_i(ts, i);
 	
 	return U;
+}
+
+double utilization_factor_modified(taskset *ts) {
+	unsigned int i, testing_set[MAX_TESTING_SET_SIZE];
+	int j, n_testing_set;
+	double MIN = 10.0, MAX = 0.0, cur_u;
+
+	for(i = 0; i < ts->size; i++)
+		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0)
+			for (j = 0; j < n_testing_set; j++) {
+				cur_u = (double) workload(ts, i, testing_set[j]) / testing_set[i];
+				if (cur_u < MIN) 
+					MIN = cur_u;
+			}
+
+		if(MIN > MAX)
+			MAX = MIN;
+	
+	return MAX;
 }
 
 unsigned int max_deadline(taskset *ts) {

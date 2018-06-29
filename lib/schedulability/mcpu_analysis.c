@@ -44,6 +44,7 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 	double u = (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
 	double expected_u = (double) u + v->cpus[cpu_index].u;
 	unsigned int is_schedulable = 0;
+	FILE *null = fopen("./null", "w");
 	
 	if(expected_u > v->cpus[cpu_index].max_u)
 		return is_schedulable;
@@ -52,21 +53,22 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 
 	switch(a) {
 		case FP:
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, null) : h_analysis_fp(temp, v->cpus[cpu_index].ps, null);
 			break;
 		case RM:
 			sort_by_increasing_periods(ts);
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, null) : h_analysis_fp(temp, v->cpus[cpu_index].ps, null);
 			break;
 		case DM:
 			sort_by_increasing_deadlines(ts);
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, null) : h_analysis_fp(temp, v->cpus[cpu_index].ps, null);
 			break;
 		case EDF:
-			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp, NULL) : h_analysis_edf(temp, v->cpus[cpu_index].ps, NULL);
+			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp, null) : h_analysis_edf(temp, v->cpus[cpu_index].ps, null);
 			break;
 	}
-
+	
+	fclose(null);
 	free(temp);
 		
 	return is_schedulable;
@@ -93,8 +95,8 @@ unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorith
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the %s heuristic algorithm:\n", a_algorithm_to_string(allocation));
 	for (i = 0; i < ts->size; i++) {
 		if(allocation != NF) j = 0;
-		if(allocation == BF) sort_by_increasing_empty_space(v);
-		if(allocation == WF) sort_by_decreasing_empty_space(v);
+		if(allocation == BF) {if(algorithm == EDF) sort_by_increasing_empty_space(v); else sort_by_increasing_empty_space_workload(v);}
+		if(allocation == WF) {if(algorithm == EDF) sort_by_decreasing_empty_space(v); else sort_by_decreasing_empty_space_workload(v);}
 		
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		fprintf(f, "\tCpu %d : ", v->cpus[j].id);
