@@ -11,8 +11,6 @@
 #include <schedulability/dbf.h>
 #include <schedulability/h_analysis.h>
 
-#define MAX_SERVER_BANDWITH 0.8
-
 void print_h_schedulability(unsigned int is_schedulable, s_algorithm a, periodic_server * ps, FILE *f) {
 	if(is_schedulable)
 		fprintf(f, "\nThe taskset is schedulable under %s with the specified periodic server (Qs = %u, Ts = %u).\n", s_algorithm_to_string(a), ps->Qs, ps->Ts);
@@ -23,6 +21,7 @@ void print_h_schedulability(unsigned int is_schedulable, s_algorithm a, periodic
 unsigned int h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f) {
 	unsigned int testing_set_f[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], i, is_schedulable = 0;
 	int j, n_testing_set, n_testing_set_f, n_testing_set_s;
+	if(f == NULL) f = fopen("./null", "r");
 
 	for(i = 0; i < ts->size; i++) {
 		n_testing_set_f = testing_set_fp(ts, testing_set_f, i);
@@ -47,6 +46,7 @@ unsigned int h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f) {
 unsigned int h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
 	unsigned int testing_set_e[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 1;
 	int i, n_testing_set, n_testing_set_e, n_testing_set_s;
+	if(f == NULL) f = fopen("./null", "r");
 	
 	n_testing_set_e = testing_set_edf(ts, testing_set_e);
 	n_testing_set_s = testing_set_sbf(ps, testing_set_s, testing_set_e[n_testing_set_e - 1]);
@@ -68,7 +68,6 @@ periodic_server * find_periodic_server(taskset *ts, s_algorithm a, int cpu, FILE
 	unsigned int start_Qs, end_Qs, Qs, start_Ts, end_Ts, Ts, is_schedulable;
 	double temp_bandwith, best_bandwith = 1.0;
 	periodic_server * temp_ps, * ps = create_empty_ps();
-	FILE * null = fopen("./null", "r");
 
 	if(cpu > 0)	
 		fprintf(f, "Cpu %d : finding a periodic server for the taskset. ", cpu);
@@ -78,14 +77,13 @@ periodic_server * find_periodic_server(taskset *ts, s_algorithm a, int cpu, FILE
 	start_Ts = min_period(ts);
 	end_Ts = 2 * max_period(ts);
 	for(Ts = start_Ts; Ts < end_Ts; Ts++) {
-		//start_Qs = 0;
 		start_Qs = (unsigned int) ceil((double) Ts * utilization_factor(ts));
 		end_Qs = (unsigned int) ceil((double) Ts * best_bandwith);
 		for(Qs = start_Qs; Qs <= end_Qs; Qs++) {
 			temp_ps = load_periodic_server(Qs, Ts);
 			temp_bandwith = (double) temp_ps->Qs / temp_ps->Ts;
 			
-			is_schedulable = (a == EDF) ? h_analysis_edf(ts, temp_ps, null) : h_analysis_fp(ts, temp_ps, null);
+			is_schedulable = (a == EDF) ? h_analysis_edf(ts, temp_ps, NULL) : h_analysis_fp(ts, temp_ps, NULL);
 			if(is_schedulable && temp_bandwith < best_bandwith) {
 				ps = temp_ps;
 				best_bandwith = temp_bandwith;

@@ -44,7 +44,6 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 	double u = (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
 	double expected_u = (double) u + v->cpus[cpu_index].u;
 	unsigned int is_schedulable = 0;
-	FILE *null = fopen("./null", "w");
 	
 	if(expected_u > v->cpus[cpu_index].max_u)
 		return is_schedulable;
@@ -53,18 +52,18 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 
 	switch(a) {
 		case FP:
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, null) : h_analysis_fp(temp, v->cpus[cpu_index].ps, null);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 		case RM:
 			sort_by_increasing_periods(ts);
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, null) : h_analysis_fp(temp, v->cpus[cpu_index].ps, null);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 		case DM:
 			sort_by_increasing_deadlines(ts);
-			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, null) : h_analysis_fp(temp, v->cpus[cpu_index].ps, null);
+			is_schedulable = (!v->ps_set) ? s_analysis_fp(temp, NULL) : h_analysis_fp(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 		case EDF:
-			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp, null) : h_analysis_edf(temp, v->cpus[cpu_index].ps, null);
+			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp, NULL) : h_analysis_edf(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 	}
 	

@@ -14,7 +14,7 @@ unsigned int workload(taskset *ts, unsigned int i, unsigned int t) {
 	return res;
 }
 
-double dbf(taskset *ts, unsigned int t) {
+double pdf(taskset *ts, unsigned int t) {
 	unsigned int i, res = 0;
 	
 	for (i = 0; i < ts->size; i++)

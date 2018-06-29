@@ -19,6 +19,7 @@ void print_s_schedulability(unsigned int is_schedulable, s_algorithm a, FILE *f)
 unsigned int s_analysis_fp(taskset *ts, FILE *f) {
 	unsigned int i, testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 0;
 	int n_testing_set, j;
+	if(f == NULL) f = fopen("./null", "w");
 	
 	for(i = 0; i < ts->size; i++)
 		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
@@ -39,6 +40,7 @@ unsigned int s_analysis_fp(taskset *ts, FILE *f) {
 unsigned int s_analysis_edf(taskset *ts, FILE *f) {
 	unsigned int testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 1;
 	int n_testing_set, i;
+	if(f == NULL) f = fopen("./null", "w");
 
 	if ((n_testing_set = testing_set_edf(ts, testing_set)) > 0) {
 		print_testing_set_edf(testing_set, n_testing_set, f);
