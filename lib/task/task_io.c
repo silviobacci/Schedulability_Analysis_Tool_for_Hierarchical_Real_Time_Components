@@ -53,6 +53,31 @@ periodic_server * create_empty_ps() {
 	return ps;
 }
 
+taskset *add_to_temp_taskset(taskset *previous_ts, task to_add) {
+	unsigned int i = 0;
+
+	taskset * new_ts = create_empty_ts();
+	
+	for(i = 0; i < previous_ts->size; i++)
+		new_ts->tasks[i] = previous_ts->tasks[i];
+	new_ts->tasks[i] = to_add;
+	
+	new_ts->size = i + 1;
+	new_ts->is_deadline_costrained = 0;
+
+	for(i = 0; i < new_ts->size; i++)
+		if(new_ts->tasks[i].D < new_ts->tasks[i].T)
+			new_ts->is_deadline_costrained = 1;
+	
+	return new_ts;
+}
+
+taskset *add_to_taskset(taskset *previous_ts, task to_add) {
+	taskset *new_ts = add_to_temp_taskset(previous_ts, to_add);
+	free(previous_ts);
+	return new_ts;
+}
+
 taskset * load_taskset(FILE *f) {
 	int res;
 	unsigned int i = 0;
