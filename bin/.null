@@ -14,10 +14,6 @@ Task 3 has 6 points in the testing set: { 7 8 12 14 15 21 }
 	 dbf(15) = 16; sbf(15) = 12 	NO
 	 dbf(21) = 16; sbf(21) = 17 	OK
 
+	NO
 
-
-O
-
-
-OK
 

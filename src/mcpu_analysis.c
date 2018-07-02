@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// MCPU ANALYSIS: Contains the testing code to perform the mcpu sched. analysis.
+//------------------------------------------------------------------------------
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -15,7 +19,13 @@
 #include <schedulability/h_analysis.h>
 #include <schedulability/mcpu_analysis.h>
 
-unsigned int (* allocation_algorithm) (taskset *ts, vm* v, s_algorithm a, FILE * f);
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// MAIN: entry poiny
+//------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 	FILE *in;

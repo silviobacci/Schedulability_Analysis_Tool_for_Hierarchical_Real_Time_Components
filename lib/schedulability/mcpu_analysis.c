@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// MCPU ANALYSIS:	Contains functions to perform mcpu sched. analysis.
+//------------------------------------------------------------------------------
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,6 +18,14 @@
 #include <schedulability/s_analysis.h>
 #include <schedulability/h_analysis.h>
 #include <schedulability/mcpu_analysis.h>
+
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// SCHEDULABLE: check if a task can be allocated to a given cpu
+//------------------------------------------------------------------------------
 
 static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index, s_algorithm a) {
 	double u = (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
@@ -47,10 +59,18 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 	return is_schedulable;
 }
 
-static void allocate_vm(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index) {
+//------------------------------------------------------------------------------
+// ALLOCATE_VM: allocate a task to a given cpu
+//------------------------------------------------------------------------------
+
+static void allocate(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index) {
 	v->cpus[cpu_index].u += (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
 	v->cpus[cpu_index].ts = add_to_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
 }
+
+//------------------------------------------------------------------------------
+// PRINT MCPU SCHEDULABILITY: print if the taskset is schedulable or not
+//------------------------------------------------------------------------------
 
 void print_mcpu_schedulability(unsigned int is_schedulable, a_algorithm a, FILE *f) {
 	if(is_schedulable)
@@ -59,10 +79,14 @@ void print_mcpu_schedulability(unsigned int is_schedulable, a_algorithm a, FILE 
 		fprintf(f, "\nThe taskset is NOT schedulable under multi-CPU partitioned scheduling with the specified cpus and using %s as allocation algorithm.\n", a_algorithm_to_string(a));
 }
 
+//------------------------------------------------------------------------------
+// MCPU ANALYSIS: performs the sched. analysis running in the specified vm
+//------------------------------------------------------------------------------
+
 unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorithm allocation, FILE *f) {
 	unsigned int i, j = 0;
 	
-	if(allocation == FFD)
+	if(algorithm == EDF && allocation == FFD)
 		sort_by_decreasing_utilization_factor(ts);
 	
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the %s heuristic algorithm:\n", a_algorithm_to_string(allocation));
@@ -80,7 +104,7 @@ unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorith
 		}
 		
 		fprintf(f, "SCHEDULABLE\n\n");
-		allocate_vm(ts, i, v, j);
+		allocate(ts, i, v, j);
 	}
 	
 	return 1;

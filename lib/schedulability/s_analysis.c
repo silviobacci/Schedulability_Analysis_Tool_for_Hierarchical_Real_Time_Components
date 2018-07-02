@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// S ANALYSIS:	Contains functions to perform sched. analysis.
+//------------------------------------------------------------------------------
+
 #include <stdio.h>
 
 #include <task/structs/task.h>
@@ -9,12 +13,24 @@
 
 #include <schedulability/s_analysis.h>
 
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// PRINT S SCHEDULABILITY: print if the taskset is schedulable or not
+//------------------------------------------------------------------------------
+
 void print_s_schedulability(unsigned int is_schedulable, s_algorithm a, FILE *f) {
 	if(is_schedulable)
 		fprintf(f, "The taskset is schedulable under %s.\n", s_algorithm_to_string(a));
 	else
 		fprintf(f, "The taskset is NOT schedulable under %s.\n", s_algorithm_to_string(a));
 }
+
+//------------------------------------------------------------------------------
+// PRINT S ANALYSIS FP: perform the sched. analysis under fp
+//------------------------------------------------------------------------------
 
 unsigned int s_analysis_fp(taskset *ts, FILE *f) {
 	unsigned int i, testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 0;
@@ -47,6 +63,10 @@ unsigned int s_analysis_fp(taskset *ts, FILE *f) {
 
 	return is_schedulable;
 }
+
+//------------------------------------------------------------------------------
+// PRINT S ANALYSIS EDF: perform the sched. analysis under edf
+//------------------------------------------------------------------------------
 
 unsigned int s_analysis_edf(taskset *ts, FILE *f) {
 	unsigned int testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 1;

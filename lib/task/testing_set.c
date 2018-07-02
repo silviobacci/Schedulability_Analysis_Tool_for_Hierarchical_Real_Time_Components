@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// TESTING SETS:	Contains functions to compute scheduling points.
+//------------------------------------------------------------------------------
+
 #include <stdio.h>
 
 #include <task/structs/task.h>
@@ -6,8 +10,20 @@
 #include <task/utilities.h>
 #include <task/testing_set.h>
 
-#define min(a, b) (((a) < (b)) ? (a) : (b)) 
-#define max(a, b) (((a) > (b)) ? (a) : (b)) 
+//------------------------------------------------------------------------------
+// GLOBAL CONSTANTS
+//------------------------------------------------------------------------------
+
+#define min(a, b) (((a) < (b)) ? (a) : (b)) 	// declares the min operation
+#define max(a, b) (((a) > (b)) ? (a) : (b)) 	// declares the max operation
+
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// BUBBLE SORT: order an array for incresing integer values
+//------------------------------------------------------------------------------
 
 static void bubble_sort(unsigned int *array, int array_size) {
 	int i, j, temp;
@@ -21,6 +37,10 @@ static void bubble_sort(unsigned int *array, int array_size) {
 			}
 }
 
+//------------------------------------------------------------------------------
+// PRINT TESTING SET EDF: prints all the scheduling points for edf
+//------------------------------------------------------------------------------
+
 void print_testing_set_edf(unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
 	unsigned int i;
 
@@ -32,6 +52,10 @@ void print_testing_set_edf(unsigned int *testing_set, unsigned int n_testing_set
 	fprintf(f, "}\n");
 }
 
+//------------------------------------------------------------------------------
+// PRINT TESTING SET FP: prints all the scheduling points for fp
+//------------------------------------------------------------------------------
+
 void print_testing_set_fp(unsigned int *testing_set, unsigned int n_testing_set, taskset * ts, unsigned int task_index, FILE *f) {
 	unsigned int i;
 	
@@ -42,6 +66,10 @@ void print_testing_set_fp(unsigned int *testing_set, unsigned int n_testing_set,
 	
 	fprintf(f, "}\n");
 }
+
+//------------------------------------------------------------------------------
+// MERGE TESTING SETS: merge two testing sets returning another one
+//------------------------------------------------------------------------------
 
 int merge_testing_sets(unsigned int *ts1, unsigned int ts1_points, unsigned int *ts2, unsigned int ts2_points, unsigned int* points) {
 	unsigned int i, j = 0, k = 0, n_points = 0;
@@ -89,6 +117,10 @@ int merge_testing_sets(unsigned int *ts1, unsigned int ts1_points, unsigned int 
 	return n_points;
 }
 
+//------------------------------------------------------------------------------
+// TESTING SET FP: compute the schduling points for fp
+//------------------------------------------------------------------------------
+
 int testing_set_fp(taskset *ts, unsigned int *points, unsigned int i) {
 	unsigned int j, k, index, already_present, n_points = 0;
 
@@ -117,6 +149,10 @@ int testing_set_fp(taskset *ts, unsigned int *points, unsigned int i) {
 
 	return n_points;
 }
+
+//------------------------------------------------------------------------------
+// TESTING SET EDF: compute the schduling points for edf
+//------------------------------------------------------------------------------
 
 int testing_set_edf(taskset *ts, unsigned int *points) {
 	unsigned int i, k, index, already_present, Dmax, H, n_points = 0;
@@ -153,6 +189,10 @@ int testing_set_edf(taskset *ts, unsigned int *points) {
 
 	return n_points;
 }
+
+//------------------------------------------------------------------------------
+// TESTING SET SBF: compute the schduling points for sbf
+//------------------------------------------------------------------------------
 
 int testing_set_sbf(periodic_server *ps, unsigned int *points, unsigned int max) {
 	unsigned int n = 2, n_points = 0;

@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// VM_IO:	Contains the function to load and print vm.
+//------------------------------------------------------------------------------
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -10,6 +14,14 @@
 #include <vm/vm_io.h>
 #include <vm/sorting.h>
 
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// PRINT VM: prints info about the vm
+//------------------------------------------------------------------------------
+
 void print_vm(vm *v, FILE *f) {
 	unsigned int i;
 
@@ -19,6 +31,10 @@ void print_vm(vm *v, FILE *f) {
 	for (i = 0; i < v->n_cpus; i++)
 		fprintf(f, "\t Cpu %u :\n\t\t Periodic Server : (Qs = %d,  Ts = %d)\n\t\t U : %f\n\t\t MAX U : %f\n\n", v->cpus[i].id, v->cpus[i].ps->Qs, v->cpus[i].ps->Ts, v->cpus[i].u, v->cpus[i].max_u);
 }
+
+//------------------------------------------------------------------------------
+// PRINT VM LOAD: prints info about the taskset allocated to the vm
+//------------------------------------------------------------------------------
 
 void print_vm_load(vm *v, FILE *f) {
 	unsigned int i, j, k, round_u, drawn;
@@ -53,6 +69,10 @@ void print_vm_load(vm *v, FILE *f) {
 	fprintf(f, "\n");
 }
 
+//------------------------------------------------------------------------------
+// CREATE EMPTY VM: allocate the memoery for an empty vm
+//------------------------------------------------------------------------------
+
 vm * create_empty_vm() {
 	vm * v = malloc(sizeof(vm));
 	
@@ -68,6 +88,10 @@ vm * create_empty_vm() {
 
 	return v;
 }
+
+//------------------------------------------------------------------------------
+// LOAD VM: load the vm from the given file
+//------------------------------------------------------------------------------
 
 vm * load_vm(FILE *f, int ps_present) {
 	unsigned int Qs = 0, Ts = 0, i = 0;
@@ -94,6 +118,10 @@ vm * load_vm(FILE *f, int ps_present) {
 
 	return v;
 }
+
+//------------------------------------------------------------------------------
+// IS PS IN FILE: return 1 if a server is specified in the file, 0 otherwise
+//------------------------------------------------------------------------------
 
 int is_ps_in_file(FILE *f, char * filename) {
 	unsigned int ret = 0, tmp2, tmp3;

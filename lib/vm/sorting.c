@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// SORTING:	Contains sorting function for cpus.
+//------------------------------------------------------------------------------
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,6 +14,14 @@
 #include <vm/structs/vm.h>
 #include <vm/vm_io.h>
 #include <vm/sorting.h>
+
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// SORT CPUS BY ID: sort cpus by increasing identifier values
+//------------------------------------------------------------------------------
 
 void sort_cpus_by_id(vm *v) {
 	unsigned int i, j;
@@ -25,6 +37,10 @@ void sort_cpus_by_id(vm *v) {
 	free(temp);
 }
 
+//------------------------------------------------------------------------------
+// SORT CPUS BY INCREASING EMPTY SPACE: sort cpus by increasing empty space
+//------------------------------------------------------------------------------
+
 void sort_by_increasing_empty_space(vm *v) {
 	unsigned int i, j;
 	cpu * temp = malloc(sizeof(cpu));
@@ -38,6 +54,10 @@ void sort_by_increasing_empty_space(vm *v) {
 			}
 	free(temp);
 }
+
+//------------------------------------------------------------------------------
+// SORT CPUS BY DECREASING EMPTY SPACE: sort cpus by decreasing empty space
+//------------------------------------------------------------------------------
 
 void sort_by_decreasing_empty_space(vm *v) {
 	unsigned int i, j, n_cpus = 0;
@@ -62,6 +82,10 @@ void sort_by_decreasing_empty_space(vm *v) {
 	free(temp);
 }
 
+//------------------------------------------------------------------------------
+// SORT CPUS BY INCREASING EMPTY SPACE WORKLOAD: sort using the modified U
+//------------------------------------------------------------------------------
+
 void sort_by_increasing_empty_space_workload(vm *v) {
 	unsigned int i, j;
 	cpu * temp = malloc(sizeof(cpu));
@@ -75,6 +99,10 @@ void sort_by_increasing_empty_space_workload(vm *v) {
 			}
 	free(temp);
 }
+
+//------------------------------------------------------------------------------
+// SORT CPUS BY DECREASING EMPTY SPACE WORKLOAD: sort using the modified U
+//------------------------------------------------------------------------------
 
 void sort_by_decreasing_empty_space_workload(vm *v) {
 	unsigned int i, j, n_cpus = 0;

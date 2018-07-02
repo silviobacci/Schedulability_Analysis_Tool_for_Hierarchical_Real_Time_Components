@@ -1,3 +1,7 @@
+//------------------------------------------------------------------------------
+// H ANALYSIS:	Contains functions to perform hierarchical sched. analysis.
+//------------------------------------------------------------------------------
+
 #include <math.h>
 #include <stdio.h>
 
@@ -11,12 +15,24 @@
 #include <schedulability/dbf.h>
 #include <schedulability/h_analysis.h>
 
+//------------------------------------------------------------------------------
+// FUNCTIONS
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// PRINT H SCHEDULABILITY: print if the taskset is schedulable or not
+//------------------------------------------------------------------------------
+
 void print_h_schedulability(unsigned int is_schedulable, s_algorithm a, periodic_server * ps, FILE *f) {
 	if(is_schedulable)
 		fprintf(f, "\nThe taskset is schedulable under %s with the specified periodic server (Qs = %u, Ts = %u).\n", s_algorithm_to_string(a), ps->Qs, ps->Ts);
 	else
 		fprintf(f, "\nThe taskset is NOT schedulable under %s with the specified periodic server (Qs = %u, Ts = %u).\n", s_algorithm_to_string(a), ps->Qs, ps->Ts);
 }
+
+//------------------------------------------------------------------------------
+// H ANALYSIS FP: performs the sched. analysis under fp with the given server
+//------------------------------------------------------------------------------
 
 unsigned int h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f) {
 	unsigned int testing_set_f[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], i, is_schedulable = 0;
@@ -51,6 +67,10 @@ unsigned int h_analysis_fp(taskset *ts, periodic_server *ps, FILE *f) {
 	return is_schedulable;
 }
 
+//------------------------------------------------------------------------------
+// H ANALYSIS EDF: performs the sched. analysis under edf with the given server
+//------------------------------------------------------------------------------
+
 unsigned int h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
 	unsigned int testing_set_e[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 1;
 	int i, n_testing_set, n_testing_set_e, n_testing_set_s;
@@ -76,35 +96,41 @@ unsigned int h_analysis_edf(taskset *ts, periodic_server *ps, FILE *f){
 	return is_schedulable;
 }
 
+//------------------------------------------------------------------------------
+// FIND PERIODIC SERVER: returns the server with min bandwidth able to schedule
+//------------------------------------------------------------------------------
+
 periodic_server * find_periodic_server(taskset *ts, s_algorithm a, int cpu, FILE *f) {
 	unsigned int start_Qs, end_Qs, Qs, start_Ts, end_Ts, Ts, is_schedulable;
 	double temp_bandwith, best_bandwith = 1.0;
 	periodic_server * temp_ps, * ps = create_empty_ps();
 
 	if(cpu > 0)	
-		fprintf(f, "Cpu %d : finding a periodic server for the taskset. ", cpu);
+		fprintf(f, "Cpu %d : finding a periodic server for the taskset. \n", cpu);
 	else
-		fprintf(f, "Let's try to find a periodic server that can schedule the entire taskset. ");
+		fprintf(f, "Let's try to find a periodic server that can schedule the entire taskset. \n");
 
 	start_Ts = min_period(ts);
 	end_Ts = 2 * max_period(ts);
 	
-	fprintf(f, "Searching periodic server with Ts between %u and %u.\n", start_Ts, end_Ts);
+	fprintf(f, "\tTs in [%u,  %u]\n", start_Ts, end_Ts);
 	for(Ts = start_Ts; Ts <= end_Ts; Ts++) {
 		start_Qs = 1;
 		end_Qs = (unsigned int) ceil((double) Ts * best_bandwith);
-		fprintf(f, "\tSearching periodic server with Qs between %u and %u.\n", start_Qs, end_Qs);
+		fprintf(f, "\t\tQs in [%u,  %u]\n", start_Qs, end_Qs);
 		for(Qs = start_Qs; Qs <= end_Qs; Qs++) {
 			temp_ps = load_periodic_server(Qs, Ts);
 			temp_bandwith = (double) temp_ps->Qs / temp_ps->Ts;
 			is_schedulable = (a == EDF) ? h_analysis_edf(ts, temp_ps, NULL) : h_analysis_fp(ts, temp_ps, NULL);
-			if(is_schedulable) {
-				fprintf(f, "\t\tTemporary best periodic server: Qs = %u, Ts = %u.\n", temp_ps->Qs, temp_ps->Ts);
+			if(is_schedulable && temp_bandwith <= best_bandwith) {
+				fprintf(f, "\t\t\tPS : (Qs = %u, Ts = %u)\n", temp_ps->Qs, temp_ps->Ts);
 				ps = temp_ps;
 				best_bandwith = temp_bandwith;
 			}
 		}
 	}
+	
+	fprintf(f, "\n");
 
 	print_periodic_server(ps, f);
 			
