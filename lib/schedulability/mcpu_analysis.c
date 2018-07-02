@@ -15,31 +15,6 @@
 #include <schedulability/h_analysis.h>
 #include <schedulability/mcpu_analysis.h>
 
-static taskset *temp_taskset(taskset *previous_ts, task to_add) {
-	unsigned int i = 0;
-
-	taskset * new_ts = create_empty_ts();
-	
-	for(i = 0; i < previous_ts->size; i++)
-		new_ts->tasks[i] = previous_ts->tasks[i];
-	new_ts->tasks[i] = to_add;
-	
-	new_ts->size = i + 1;
-	new_ts->is_deadline_costrained = 0;
-
-	for(i = 0; i < new_ts->size; i++)
-		if(new_ts->tasks[i].D < new_ts->tasks[i].T)
-			new_ts->is_deadline_costrained = 1;
-	
-	return new_ts;
-}
-
-static taskset *create_taskset(taskset *previous_ts, task to_add) {
-	taskset *new_ts = temp_taskset(previous_ts, to_add);
-	free(previous_ts);
-	return new_ts;
-}
-
 static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index, s_algorithm a) {
 	double u = (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
 	double expected_u = (double) u + v->cpus[cpu_index].u;
@@ -48,7 +23,7 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 	if(expected_u > v->cpus[cpu_index].max_u)
 		return is_schedulable;
 		
-	taskset * temp = temp_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
+	taskset * temp = add_to_temp_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
 
 	switch(a) {
 		case FP:
@@ -66,7 +41,7 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 			is_schedulable = (!v->ps_set) ? s_analysis_edf(temp, NULL) : h_analysis_edf(temp, v->cpus[cpu_index].ps, NULL);
 			break;
 	}
-
+	
 	free(temp);
 		
 	return is_schedulable;
@@ -74,7 +49,7 @@ static unsigned int schedulable(taskset *ts, unsigned int task_index, vm *v, uns
 
 static void allocate_vm(taskset *ts, unsigned int task_index, vm *v, unsigned int cpu_index) {
 	v->cpus[cpu_index].u += (double) ts->tasks[task_index].C / ts->tasks[task_index].T;
-	v->cpus[cpu_index].ts = create_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
+	v->cpus[cpu_index].ts = add_to_taskset(v->cpus[cpu_index].ts, ts->tasks[task_index]);
 }
 
 void print_mcpu_schedulability(unsigned int is_schedulable, a_algorithm a, FILE *f) {
@@ -93,8 +68,8 @@ unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorith
 	fprintf(f, "Let's try to assign the tasks to the different cpus according to the %s heuristic algorithm:\n", a_algorithm_to_string(allocation));
 	for (i = 0; i < ts->size; i++) {
 		if(allocation != NF) j = 0;
-		if(allocation == BF) sort_by_increasing_empty_space(v);
-		if(allocation == WF) sort_by_decreasing_empty_space(v);
+		if(allocation == BF) {if(algorithm == EDF) sort_by_increasing_empty_space(v); else sort_by_increasing_empty_space_workload(v);}
+		if(allocation == WF) {if(algorithm == EDF) sort_by_decreasing_empty_space(v); else sort_by_decreasing_empty_space_workload(v);}
 		
 		fprintf(f, "Task %d :\n", ts->tasks[i].id);
 		fprintf(f, "\tCpu %d : ", v->cpus[j].id);
