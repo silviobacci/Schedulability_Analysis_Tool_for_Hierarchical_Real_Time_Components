@@ -74,9 +74,9 @@ int main(int argc, char *argv[]) {
 	is_schedulable = (algorithm == EDF) ? h_analysis_edf(ts, ps, stdout) : h_analysis_fp(ts, ps, stdout);
 	print_h_schedulability(is_schedulable, algorithm, ps, stdout);
 
-	if(!is_schedulable){
-		ps = find_periodic_server(ts, algorithm, -1, stdout);
+	if(!is_schedulable && (ps = find_periodic_server(ts, algorithm, -1, stdout)) != NULL) {
 		is_schedulable = (algorithm == EDF) ? h_analysis_edf(ts, ps, stdout) : h_analysis_fp(ts, ps, stdout);
+		print_h_schedulability(is_schedulable, algorithm, ps, stdout);
 	}
 
 	printf("\n--------------------------------------------------------------------");

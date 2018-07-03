@@ -26,11 +26,6 @@ void print_taskset(taskset *ts, FILE *f) {
 	for (i = 0; i < ts->size; i++)
 		fprintf(f, "\t Task %u : (%u, %u, %u)\n", ts->tasks[i].id, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].T);
 
-	if(ts->is_deadline_costrained)
-		fprintf(f, "Note that the taskset has the deadlines that less than or equal to the periods.\n");
-	else
-		fprintf(f, "Note that the taskset has the deadlines always equal to the periods.\n");
-
 	fprintf(f, "\n");
 }
 
@@ -88,14 +83,9 @@ taskset *add_to_temp_taskset(taskset *previous_ts, task to_add) {
 	
 	for(i = 0; i < previous_ts->size; i++)
 		new_ts->tasks[i] = previous_ts->tasks[i];
-	new_ts->tasks[i] = to_add;
+	new_ts->tasks[previous_ts->size] = to_add;
 	
-	new_ts->size = i + 1;
-	new_ts->is_deadline_costrained = 0;
-
-	for(i = 0; i < new_ts->size; i++)
-		if(new_ts->tasks[i].D < new_ts->tasks[i].T)
-			new_ts->is_deadline_costrained = 1;
+	new_ts->size = previous_ts->size + 1;
 	
 	return new_ts;
 }
@@ -127,11 +117,6 @@ taskset * load_taskset(FILE *f) {
 	}
 
 	ts->size = i;
-	ts->is_deadline_costrained = 0;
-
-	for(i = 0; i < ts->size; i++)
-		if(ts->tasks[i].D < ts->tasks[i].T)
-			ts->is_deadline_costrained = 1;
 
 	return ts;
 }

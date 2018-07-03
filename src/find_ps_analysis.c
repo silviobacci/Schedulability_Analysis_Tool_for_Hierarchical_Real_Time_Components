@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
 	taskset *ts;
 	periodic_server * ps;
 	s_algorithm algorithm;
+	unsigned int is_schedulable;
 	
 	if (argc < 3) {
 		fprintf(stderr, "Usage: %s <taskset> <algorithm>\n", argv[0]);
@@ -65,12 +66,11 @@ int main(int argc, char *argv[]) {
 	printf("\n--------------------------------------------------------------------\n\n");
 	
 	print_taskset(ts, stdout);
-	ps = find_periodic_server(ts, algorithm, -1, stdout);
-
-	if(algorithm == EDF) 
-		h_analysis_edf(ts, ps, stdout); 
-	else 
-		h_analysis_fp(ts, ps, stdout);
+	
+	if((ps = find_periodic_server(ts, algorithm, -1, stdout)) != NULL) {
+		is_schedulable = (algorithm == EDF) ? h_analysis_edf(ts, ps, stdout) : h_analysis_fp(ts, ps, stdout);
+		print_h_schedulability(is_schedulable, algorithm, ps, stdout);
+	}
 
 	printf("\n--------------------------------------------------------------------");
 	printf("\n--------------- END FIND PERIODIC SERVER ANALYSIS ------------------");

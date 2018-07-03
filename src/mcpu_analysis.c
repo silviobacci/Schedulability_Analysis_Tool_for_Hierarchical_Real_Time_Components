@@ -75,6 +75,18 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Error loading allocation algorithm!\n");
 		return -3;
 	}
+
+	switch(algorithm) {
+		case RM:
+			sort_by_increasing_periods(ts);
+			break;
+		case DM:
+			sort_by_increasing_deadlines(ts);
+			break;
+		case FP:
+		case EDF:
+			break;
+	}
 	
 	printf("\n--------------------------------------------------------------------");
 	printf("\n-------------------- M-CPU SCHEDULING ANALYSIS ---------------------");

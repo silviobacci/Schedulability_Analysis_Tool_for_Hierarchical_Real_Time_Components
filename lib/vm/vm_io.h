@@ -30,7 +30,7 @@ vm * create_empty_vm();
 // LOAD VM: load the vm from the given file
 //------------------------------------------------------------------------------
 
-vm * load_vm(FILE *f);
+vm * load_vm(FILE *f, int ps_present);
 
 //------------------------------------------------------------------------------
 // IS PS IN FILE: return 1 if a server is specified in the file, 0 otherwise

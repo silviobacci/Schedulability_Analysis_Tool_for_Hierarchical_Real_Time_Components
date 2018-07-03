@@ -37,7 +37,7 @@ void print_vm(vm *v, FILE *f) {
 //------------------------------------------------------------------------------
 
 void print_vm_load(vm *v, FILE *f) {
-	unsigned int i, j, k, round_u, drawn;
+	unsigned int i, j, k, round_u;
 
 	fprintf(f, "The computational load on the vm is the following:\n");
 	sort_cpus_by_id(v);
@@ -53,16 +53,11 @@ void print_vm_load(vm *v, FILE *f) {
 	
 	for (i = 0; i < v->n_cpus; i++) {
 		fprintf(f, "\t Cpu %u : [", v->cpus[i].id);
-		drawn = 0;
 		for (j = 0; j < v->cpus[i].ts->size; j++) {
 			round_u = v->cpus[i].ts->tasks[j].C;
-			for (k = 0; k < round_u; k++) {
+			for (k = 0; k < round_u; k++)
 				fprintf(f, "%u",v->cpus[i].ts->tasks[j].id);
-				drawn++;
-			}
 		}
-		for (j = drawn; j < 10; j++)
-				fprintf(f, " ");
 		fprintf(f, "]\n");
 	}
 	
