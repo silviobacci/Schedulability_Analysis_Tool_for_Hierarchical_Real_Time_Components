@@ -1,9 +1,12 @@
-#ifndef VM_UTILITIES_H
-#define VM_UTILITIES_H
+#ifndef A_ALGORITHM_H
+#define A_ALGORITHM_H
 
 //------------------------------------------------------------------------------
-// FUNCTIONS
+// GLOBAL DATA STRUCTURES
 //------------------------------------------------------------------------------
+
+// This enums contains all the allwoed bin packing algorhtms
+typedef enum a_algorithm_ {BF, FF, NF, WF, FFD} a_algorithm;
 
 //------------------------------------------------------------------------------
 // PRINT A ALGORITHM: prints info about the allocation algorithm

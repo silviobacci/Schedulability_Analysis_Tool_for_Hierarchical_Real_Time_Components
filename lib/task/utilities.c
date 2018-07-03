@@ -2,52 +2,14 @@
 // UTILITIES:	Contains useful functions to compute paramters of a taskset.
 //------------------------------------------------------------------------------
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/testing_set.h>
-#include <schedulability/dbf.h>
-#include <task/utilities.h>
+#include "task/types.h"
+#include "task/testing_set.h"
+#include "task/utilities.h"
+#include "schedulability/dbf.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
 //------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// PRINT S ALGORITHM: prints info about the schduling algorithm
-//------------------------------------------------------------------------------
-
-void print_s_algorithm(s_algorithm a, FILE *f) {
-	fprintf(f, "The taskset schedulability will be checked under %s.\n\n", s_algorithm_to_string(a));
-}
-
-//------------------------------------------------------------------------------
-// S ALGORITHM TO STRING: converts the integer of the enum in a string
-//------------------------------------------------------------------------------
-
-char * s_algorithm_to_string(s_algorithm a) {
-	char * ret = malloc(sizeof(char) * 5);
-	switch(a) {
-		case FP:
-			ret = "FP";
-			break;
-		case RM:
-			ret = "RM";
-			break;
-		case DM:
-			ret = "DM";
-			break;
-		case EDF:
-			ret = "EDF";
-			break;
-	}
-	
-	return ret;
-}
 
 //------------------------------------------------------------------------------
 // UTILIZATION FACTOR I: utilization factor of a task
@@ -83,7 +45,7 @@ double utilization_factor_modified(taskset *ts) {
 	for(i = 0; i < ts->size; i++)
 		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0)
 			for (j = 0; j < n_testing_set; j++) {
-				cur_u = (double) workload(ts, i, testing_set[j]) / testing_set[i];
+				cur_u = (double) workload_function(ts, i, testing_set[j]) / testing_set[i];
 				if (cur_u < MIN) 
 					MIN = cur_u;
 			}

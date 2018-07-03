@@ -5,13 +5,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/task_io.h>
-#include <task/sorting.h>
-#include <task/utilities.h>
-#include <schedulability/s_analysis.h>
+#include "task/types.h"
+#include "task/task_io.h"
+#include "task/sorting.h"
+#include "task/utilities.h"
+#include "task/s_algorithm.h"
+#include "schedulability/s_analysis.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
@@ -22,7 +21,7 @@
 //------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-	FILE *in;
+	FILE *in, *out = stdout;
 	taskset *ts;
 	s_algorithm algorithm;
 	unsigned int is_schedulable;
@@ -61,19 +60,23 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 
-	printf("\n--------------------------------------------------------------------");
-	printf("\n---------------------- SCHEUDLING ANLYSIS --------------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n---------------------- SCHEUDLING ANLYSIS --------------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 	
-	print_s_algorithm(algorithm, stdout);
-	print_taskset(ts, stdout);
+	print_s_algorithm(algorithm, out);
+	print_taskset(ts, out);
 	
-	is_schedulable = (algorithm == EDF) ? s_analysis_edf(ts, stdout) : s_analysis_fp(ts, stdout);
-	print_s_schedulability(is_schedulable, algorithm, stdout);
+	is_schedulable = (algorithm == EDF) ? processor_demand_analysis(ts) : workload_analysis(ts);
+	
+	if(is_schedulable)
+		fprintf(out, "The taskset is schedulable under %s.\n", s_algorithm_to_string(algorithm));
+	else
+		fprintf(out, "The taskset is NOT schedulable under %s.\n", s_algorithm_to_string(algorithm));
 
-	printf("\n--------------------------------------------------------------------");
-	printf("\n-------------------- END SCHEUDLING ANLYSIS ------------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n-------------------- END SCHEUDLING ANLYSIS ------------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 
 	return 0;
 }

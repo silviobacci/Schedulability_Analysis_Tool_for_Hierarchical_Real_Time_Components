@@ -5,11 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/task_io.h>
-#include <schedulability/sbf.h>
+#include "task/types.h"
+#include "task/task_io.h"
+#include "schedulability/sbf.h"
 
 //------------------------------------------------------------------------------
 // GLOBAL CONSTANTS
@@ -27,6 +25,8 @@
 //------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
+	unsigned int t;
+	FILE * out = stdout;
 	periodic_server * ps;
 
 	if (argc < 3) {
@@ -36,16 +36,20 @@ int main(int argc, char *argv[]) {
 	
 	ps = load_periodic_server(atoi(argv[1]), atoi(argv[2]));
 
-	printf("\n--------------------------------------------------------------------");
-	printf("\n------------------------------- SBF --------------------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n------------------------------- SBF --------------------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 
-	print_periodic_server(ps, stdout);
-	print_sbf(ps, START_TIME, END_TIME, stdout);
+	print_periodic_server(ps, out);
+	
+	fprintf(out, "The sbf computed from time %u to time %u is: \n", START_TIME, END_TIME);
 
-	printf("\n--------------------------------------------------------------------");
-	printf("\n----------------------------- END SBF ------------------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	for (t = START_TIME; t < END_TIME; t++)
+		fprintf(out, "\t sbf(%u) = %u\n", t, sbf(ps, t));
+
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n----------------------------- END SBF ------------------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 
 	return 0;
 }

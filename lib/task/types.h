@@ -1,5 +1,5 @@
-#ifndef TASKSET_H
-#define TASKSET_H
+#ifndef TASK_TYPES_H
+#define TASK_TYPES_H
 
 //------------------------------------------------------------------------------
 // GLOBAL CONSTANTS
@@ -11,13 +11,24 @@
 // GLOBAL AND EXTERN DATA STRUCTURES
 //------------------------------------------------------------------------------
 
-// This enum contains all the scheduling algorithms supported
-typedef enum s_algorithm_ {FP, RM, DM, EDF} s_algorithm;
+// This structure contains the parameters of a periodic server
+typedef struct periodic_server_ {
+	unsigned int Qs;	// budget
+	unsigned int Ts;	// period
+} periodic_server;
+
+// This structure contains the parameters desribing a task
+typedef struct task_ {
+	unsigned int id;	// identifier
+	unsigned int C;		// computation time
+	unsigned int D;		// deadline
+	unsigned int T;		// period
+} task;
 
 // This structure containes the paramters describing a taskset
 typedef struct taskset_ {
-	unsigned int size;				// # of tasks contained in the set
-	task *tasks;					// array of tasks
+	unsigned int size;	// # of tasks contained in the set
+	task *tasks;		// array of tasks
 } taskset;
 
 #endif

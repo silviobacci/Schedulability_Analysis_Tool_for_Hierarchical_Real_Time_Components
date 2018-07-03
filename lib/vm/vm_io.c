@@ -5,14 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/task_io.h>
-#include <vm/structs/cpu.h>
-#include <vm/structs/vm.h>
-#include <vm/vm_io.h>
-#include <vm/sorting.h>
+#include "task/types.h"
+#include "task/task_io.h"
+#include "vm/types.h"
+#include "vm/vm_io.h"
+#include "vm/sorting.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS

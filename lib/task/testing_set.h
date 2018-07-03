@@ -12,18 +12,6 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// PRINT TESTING SET EDF: prints all the scheduling points for edf
-//------------------------------------------------------------------------------
-
-void print_testing_set_edf(unsigned int *testing_set, unsigned int n_testing_set, FILE *f);
-
-//------------------------------------------------------------------------------
-// PRINT TESTING SET FP: prints all the scheduling points for fp
-//------------------------------------------------------------------------------
-
-void print_testing_set_fp(unsigned int *testing_set, unsigned int n_testing_set, taskset * ts, unsigned int task_index, FILE *f);
-
-//------------------------------------------------------------------------------
 // MERGE TESTING SETS: merge two testing sets returning another one
 //------------------------------------------------------------------------------
 

@@ -3,21 +3,19 @@
 //------------------------------------------------------------------------------
 
 #include <math.h>
-#include <stdio.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <schedulability/dbf.h>
+#include "task/types.h"
+#include "schedulability/dbf.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// WORKLOAD: compute the workload function at time t for the given task
+// WORKLOAD FUNTION: compute the workload function at time t for the given task
 //------------------------------------------------------------------------------
 
-unsigned int workload(taskset *ts, unsigned int i, unsigned int t) {
+unsigned int workload_function(taskset *ts, unsigned int i, unsigned int t) {
 	unsigned int j, res = ts->tasks[i].C;
 	
 	for (j = 0; j < i; j++)
@@ -27,10 +25,10 @@ unsigned int workload(taskset *ts, unsigned int i, unsigned int t) {
 }
 
 //------------------------------------------------------------------------------
-// PDF: compute the processor demand function at time t for the taskset
+// PROCESSOR DEMAND FUNCTION: compute the processor demand function at time t
 //------------------------------------------------------------------------------
 
-double pdf(taskset *ts, unsigned int t) {
+double processor_demand_function(taskset *ts, unsigned int t) {
 	unsigned int i, res = 0;
 	
 	for (i = 0; i < ts->size; i++)

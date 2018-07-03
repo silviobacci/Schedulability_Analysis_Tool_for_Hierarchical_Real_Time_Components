@@ -6,22 +6,16 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// PRINT S SCHEDULABILITY: print if the taskset is schedulable or not
+// WORKLOAD ANALYSIS: perform the sched. analysis under fp
 //------------------------------------------------------------------------------
 
-void print_s_schedulability(unsigned int is_schedulable, s_algorithm a, FILE *f);
-
-//------------------------------------------------------------------------------
-// PRINT S ANALYSIS FP: perform the sched. analysis under fp
-//------------------------------------------------------------------------------
-
-unsigned int s_analysis_fp(taskset *ts, FILE *f);
+unsigned int workload_analysis(taskset *ts);
 
 
 //------------------------------------------------------------------------------
-// PRINT S ANALYSIS EDF: perform the sched. analysis under edf
+// PROCESSOR DEMAND ANALYSIS: perform the sched. analysis under edf
 //------------------------------------------------------------------------------
 
-unsigned int s_analysis_edf(taskset *ts, FILE *f);
+unsigned int processor_demand_analysis(taskset *ts);
 
 #endif

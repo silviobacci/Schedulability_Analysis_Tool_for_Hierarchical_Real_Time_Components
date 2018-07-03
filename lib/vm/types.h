@@ -1,5 +1,5 @@
-#ifndef VM_H
-#define VM_H
+#ifndef VM_TYPES_H
+#define VM_TYPES_H
 
 //------------------------------------------------------------------------------
 // GLOBAL CONSTANTS
@@ -8,11 +8,17 @@
 #define MAX_NUMBER_CPUS 16		// maximum allowed number of cpus in a vm
 
 //------------------------------------------------------------------------------
-// GLOBAL DATA STRUCTURES
+// GLOBAL AND EXTERN DATA STRUCTURES
 //------------------------------------------------------------------------------
 
-// This enums contains all the allwoed bin packing algorhtms
-typedef enum a_algorithm_ {BF, FF, NF, WF, FFD} a_algorithm;
+// This structure contains all the paramters for describing a cpu
+typedef struct cpu_ {
+	unsigned int id;		// cpu identifier
+	double max_u;			// max allowed u on a cpu
+	double u;				// current u of the cpu
+	periodic_server * ps;	// periodic server running for our component
+	taskset * ts;			// tasks allocated to the cpu
+} cpu;
 
 // This strctures containes all the paramters to describe a vm
 typedef struct vm_ {

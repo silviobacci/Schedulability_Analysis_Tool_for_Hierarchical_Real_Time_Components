@@ -5,12 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/task_io.h>
-#include <task/sorting.h>
-#include <schedulability/h_analysis.h>
+#include "task/types.h"
+#include "task/task_io.h"
+#include "task/sorting.h"
+#include "task/s_algorithm.h"
+#include "schedulability/h_analysis.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
@@ -21,11 +20,10 @@
 //------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-	FILE *in;
+	FILE *in, *out = stdout;
 	taskset *ts;
 	periodic_server * ps;
 	s_algorithm algorithm;
-	unsigned int is_schedulable;
 	
 	if (argc < 3) {
 		fprintf(stderr, "Usage: %s <taskset> <algorithm>\n", argv[0]);
@@ -61,20 +59,22 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	
-	printf("\n--------------------------------------------------------------------");
-	printf("\n----------------- FIND PERIODIC SERVER ANALYSIS --------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n----------------- FIND PERIODIC SERVER ANALYSIS --------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 	
 	print_taskset(ts, stdout);
 	
-	if((ps = find_periodic_server(ts, algorithm, -1, stdout)) != NULL) {
-		is_schedulable = (algorithm == EDF) ? h_analysis_edf(ts, ps, stdout) : h_analysis_fp(ts, ps, stdout);
-		print_h_schedulability(is_schedulable, algorithm, ps, stdout);
-	}
+	fprintf(out, "Let's try to find a periodic server that can schedule the entire taskset. ");
+	
+	if((ps = find_periodic_server(ts, algorithm)) != NULL)
+		print_periodic_server(ps, out);
+	else
+		fprintf(out, "Sorry, it is impossible to find the desired periodic server. ");
 
-	printf("\n--------------------------------------------------------------------");
-	printf("\n--------------- END FIND PERIODIC SERVER ANALYSIS ------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n--------------- END FIND PERIODIC SERVER ANALYSIS ------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 
 	return 0;
 }

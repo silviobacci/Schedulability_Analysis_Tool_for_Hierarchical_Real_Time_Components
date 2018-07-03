@@ -2,13 +2,9 @@
 // TESTING SETS:	Contains functions to compute scheduling points.
 //------------------------------------------------------------------------------
 
-#include <stdio.h>
-
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/utilities.h>
-#include <task/testing_set.h>
+#include "task/types.h"
+#include "task/utilities.h"
+#include "task/testing_set.h"
 
 //------------------------------------------------------------------------------
 // GLOBAL CONSTANTS
@@ -35,36 +31,6 @@ static void bubble_sort(unsigned int *array, int array_size) {
 				array[j + 1] = array[j];
 				array[j] = temp;
 			}
-}
-
-//------------------------------------------------------------------------------
-// PRINT TESTING SET EDF: prints all the scheduling points for edf
-//------------------------------------------------------------------------------
-
-void print_testing_set_edf(unsigned int *testing_set, unsigned int n_testing_set, FILE *f) {
-	unsigned int i;
-
-	fprintf(f, "The taskset has %d points in the testing set: { ", n_testing_set);
-
-	for (i = 0; i < n_testing_set; i++)
-		fprintf(f, "%u ", testing_set[i]);
-	
-	fprintf(f, "}\n");
-}
-
-//------------------------------------------------------------------------------
-// PRINT TESTING SET FP: prints all the scheduling points for fp
-//------------------------------------------------------------------------------
-
-void print_testing_set_fp(unsigned int *testing_set, unsigned int n_testing_set, taskset * ts, unsigned int task_index, FILE *f) {
-	unsigned int i;
-	
-	fprintf(f, "Task %d has %d points in the testing set: { ", ts->tasks[task_index].id, n_testing_set);
-
-	for (i = 0; i < n_testing_set; i++)
-		fprintf(f, "%u ", testing_set[i]);
-	
-	fprintf(f, "}\n");
 }
 
 //------------------------------------------------------------------------------

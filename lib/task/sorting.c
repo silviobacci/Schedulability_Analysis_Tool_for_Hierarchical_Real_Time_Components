@@ -8,8 +8,7 @@
 
 #include <stdlib.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
+#include "task/types.h"
 
 //------------------------------------------------------------------------------
 // SORT TASKSET BY ID: sort tasks for increasing values of the identifiers

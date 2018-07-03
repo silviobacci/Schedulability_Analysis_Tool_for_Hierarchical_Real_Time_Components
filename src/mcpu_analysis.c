@@ -5,19 +5,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <task/task_io.h>
-#include <task/sorting.h>
-#include <task/utilities.h>
-#include <vm/structs/cpu.h>
-#include <vm/structs/vm.h>
-#include <vm/vm_io.h>
-#include <vm/sorting.h>
-#include <vm/utilities.h>
-#include <schedulability/h_analysis.h>
-#include <schedulability/mcpu_analysis.h>
+#include "task/types.h"
+#include "task/task_io.h"
+#include "task/sorting.h"
+#include "task/utilities.h"
+#include "task/s_algorithm.h"
+#include "vm/types.h"
+#include "vm/vm_io.h"
+#include "vm/sorting.h"
+#include "vm/a_algorithm.h"
+#include "schedulability/h_analysis.h"
+#include "schedulability/mcpu_analysis.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
@@ -28,13 +26,13 @@
 //------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-	FILE *in;
-	vm *v;
-	taskset *ts;
+	FILE *in, *out = stdout;	
 	a_algorithm allocation;
 	s_algorithm algorithm;
-	unsigned int is_schedulable, i;
 	int ps_present;
+	unsigned int i;
+	taskset *ts;
+	vm *v;
 	
 	if (argc < 5) {
 		fprintf(stderr, "Usage: %s <cpu> <taskset> <algorithm> <allocation>\n", argv[0]);
@@ -56,8 +54,6 @@ int main(int argc, char *argv[]) {
 		return -3;
 	}
 	
-	printf("v->ps_set = %d\n", v->ps_set);
-	
 	if ((in = fopen(argv[2], "r")) == NULL) {
 		perror("FOpen");
 		return -2;
@@ -69,6 +65,12 @@ int main(int argc, char *argv[]) {
 	}
 	
 	algorithm = atoi(argv[3]);
+	
+	if (algorithm < FP || algorithm > EDF) {
+		fprintf(stderr, "Error loading scheduling algorithm!\n");
+			return -3;
+	}
+	
 	allocation = atoi(argv[4]);
 	
 	if (allocation < BF || allocation > FFD) {
@@ -88,30 +90,36 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	
-	printf("\n--------------------------------------------------------------------");
-	printf("\n-------------------- M-CPU SCHEDULING ANALYSIS ---------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n-------------------- M-CPU SCHEDULING ANALYSIS ---------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 	
-	print_a_algorithm(allocation, stdout);
-	print_vm(v, stdout);
-	print_taskset(ts, stdout);
+	print_a_algorithm(allocation, out);
+	print_vm(v, out);
+	print_taskset(ts, out);
 	
-	is_schedulable = mcpu_analysis(ts, v, algorithm, allocation, stdout);
-	print_mcpu_schedulability(is_schedulable, allocation, stdout);
-	
-	if(is_schedulable) {
-		print_vm_load(v, stdout);
+	if(mcpu_analysis(ts, v, algorithm, allocation)) {
+		fprintf(out, "\nThe taskset is schedulable under multi-CPU partitioned scheduling with the specified cpus and using %s as allocation algorithm.\n", a_algorithm_to_string(allocation));
+		print_vm_load(v, out);
+		
 		if(!v->ps_set) {
 			sort_cpus_by_id(v);
 			for(i = 0; i < v->n_cpus; i++)
-				if(v->cpus[i].u > 0)
-					v->cpus[i].ps = find_periodic_server(v->cpus[i].ts, algorithm, i, stdout);
+				if(v->cpus[i].u > 0) {
+					fprintf(out, "Cpu %d : finding a periodic server for the taskset. \n", v->cpus[i].id);
+					if((v->cpus[i].ps = find_periodic_server(v->cpus[i].ts, algorithm)) != NULL)
+						print_periodic_server(v->cpus[i].ps, out);
+					else
+						fprintf(out, "Sorry, it is impossible to find the desired periodic server. ");
+				}
 		}
 	}
-	
-	printf("\n--------------------------------------------------------------------");
-	printf("\n------------------ END M-CPU SCHEDULING ANALYSIS -------------------");
-	printf("\n--------------------------------------------------------------------\n\n");
+	else
+		fprintf(out, "\nThe taskset is NOT schedulable under multi-CPU partitioned scheduling with the specified cpus and using %s as allocation algorithm.\n", a_algorithm_to_string(allocation));
+		
+	fprintf(out, "\n--------------------------------------------------------------------");
+	fprintf(out, "\n------------------ END M-CPU SCHEDULING ANALYSIS -------------------");
+	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 
 	return 0;
 }

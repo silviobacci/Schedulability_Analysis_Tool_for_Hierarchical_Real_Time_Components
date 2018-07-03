@@ -1,26 +1,27 @@
-#ifndef H_ANALYSIS_H
-#define H_ANALYSIS_H
+#ifndef S_ALGORITHM_H
+#define S_ALGORITHM_H
+
+//------------------------------------------------------------------------------
+// GLOBAL AND EXTERN DATA STRUCTURES
+//------------------------------------------------------------------------------
+
+// This enum contains all the scheduling algorithms supported
+typedef enum s_algorithm_ {FP, RM, DM, EDF} s_algorithm;
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// H ANALYSIS FP: performs the sched. analysis under fp with the given server
+// PRINT S ALGORITHM: prints info about the schduling algorithm
 //------------------------------------------------------------------------------
 
-unsigned int h_analysis_fp(taskset *ts, periodic_server *ps);
+void print_s_algorithm(s_algorithm a, FILE *f);
 
 //------------------------------------------------------------------------------
-// H ANALYSIS EDF: performs the sched. analysis under edf with the given server
+// S ALGORITHM TO STRING: converts the integer of the enum in a string
 //------------------------------------------------------------------------------
 
-unsigned int h_analysis_edf(taskset *ts, periodic_server *ps);
-
-//------------------------------------------------------------------------------
-// FIND PERIODIC SERVER: returns the server with min bandwidth able to schedule
-//------------------------------------------------------------------------------
-
-periodic_server * find_periodic_server(taskset *ts, s_algorithm a);
+char * s_algorithm_to_string(s_algorithm a);
 
 #endif

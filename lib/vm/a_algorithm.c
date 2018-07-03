@@ -1,17 +1,11 @@
 //------------------------------------------------------------------------------
-// UTILITIES:	Contains useful functions to manage vms.
+// A ALGORITHM:	Contains functions to manage allocation algorithms.
 //------------------------------------------------------------------------------
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
-#include <task/structs/task.h>
-#include <task/structs/taskset.h>
-#include <task/structs/periodic_server.h>
-#include <vm/structs/cpu.h>
-#include <vm/structs/vm.h>
-#include <vm/utilities.h>
+#include "vm/a_algorithm.h"
 
 //------------------------------------------------------------------------------
 // FUNCTIONS
