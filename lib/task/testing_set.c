@@ -107,7 +107,9 @@ int testing_set_fp(taskset *ts, unsigned int *points, unsigned int i) {
 					already_present = 1;
 				
 			if(!already_present)	
-				points[n_points++] =  k++ * ts->tasks[j].T;
+				points[n_points++] =  k * ts->tasks[j].T;
+			
+			k++;
 		}
 	}
 
@@ -145,9 +147,9 @@ int testing_set_edf(taskset *ts, unsigned int *points) {
 					already_present = 1;
 				
 			if(!already_present)	
-				points[n_points++] = k++ * ts->tasks[i].T + ts->tasks[i].D;
-			else
-				k++;			
+				points[n_points++] = k * ts->tasks[i].T + ts->tasks[i].D;
+				
+			k++;			
 		}
 	}
 

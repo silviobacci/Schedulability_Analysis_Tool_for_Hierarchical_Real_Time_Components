@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
 clear
-make clean
-echo
 make
 echo
-make soft_clean
+make clean
+echo
+mv sbf s_analysis h_analysis mcpu_analysis find_ps_analysis bin

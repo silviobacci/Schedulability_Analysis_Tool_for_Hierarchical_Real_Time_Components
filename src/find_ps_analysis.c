@@ -63,9 +63,10 @@ int main(int argc, char *argv[]) {
 	fprintf(out, "\n----------------- FIND PERIODIC SERVER ANALYSIS --------------------");
 	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 	
+	print_s_algorithm(algorithm, out);
 	print_taskset(ts, stdout);
 	
-	fprintf(out, "Let's try to find a periodic server that can schedule the entire taskset. ");
+	fprintf(out, "Let's try to find a periodic server that can schedule the entire taskset under %s. ",  s_algorithm_to_string(algorithm));
 	
 	if((ps = find_periodic_server(ts, algorithm)) != NULL)
 		print_periodic_server(ps, out);

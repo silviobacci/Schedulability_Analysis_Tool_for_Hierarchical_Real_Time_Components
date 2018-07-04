@@ -19,16 +19,16 @@
 unsigned int workload_analysis(taskset *ts) {
 	unsigned int i, testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 0;
 	int n_testing_set, j;
-	
+
 	for(i = 0; i < ts->size; i++) {
 		is_schedulable = 0;
-		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0)
+		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
 			for (j = 0; j < n_testing_set; j++)
 				if (workload_function(ts, i, testing_set[j]) <= testing_set[j])
 					is_schedulable = 1;	
-			
 			if(!is_schedulable)
 				break;
+		}
 	}
 
 	return is_schedulable;

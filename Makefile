@@ -1,5 +1,8 @@
+VPATH = 				src
+LIB_PATH = 				lib
+
 CC = 					gcc
-CPPFLAGS = 				-Ilib
+CPPFLAGS = 				-I$(LIB_PATH)
 CFLAGS = 				-Wall -Wextra -pedantic -std=c11 
 LDLIBS =				-lm
 
@@ -8,12 +11,6 @@ ifdef DEBUG
 else
 	CFLAGS += 			-O3
 endif
-
-VPATH = lib src 
-
-SRC_PATH = 				src
-LIB_PATH = 				lib
-BIN_PATH = 				bin
 
 SBF = 					sbf
 S_ANALYSIS = 			s_analysis
@@ -47,26 +44,19 @@ OBJS = 					$(OBJ_SBF) $(OBJ_S_ANALYSIS) $(OBJ_H_ANALYSIS) $(OBJ_MCPU_ANALYSIS) 
 BINS = 					$(SBF) $(S_ANALYSIS) $(H_ANALYSIS) $(MCPU_ANALYSIS) $(FIND_PS_ANALYSIS)
 
 .PHONY:
-all : $(S_ANALYSIS)
-#$(SBF) $(S_ANALYSIS) $(H_ANALYSIS) $(MCPU_ANALYSIS) $(FIND_PS_ANALYSIS)
-#	mv $(BINS) $(BIN_PATH)
+all : $(SBF) $(S_ANALYSIS) $(H_ANALYSIS) $(MCPU_ANALYSIS) $(FIND_PS_ANALYSIS)
+
+.PHONY:
+clean :
+	rm -f $(OBJS) $(LIBS) $(OBJS:.o=.d) $(LIBS:.o=.d)
 
 $(SBF) : $(OBJ_SBF) $(LIB_TIO) $(LIB_SBF)
-$(S_ANALYSIS) : $(OBJ_S_ANALYSIS) 
-# $(COMMON_LIBS) $(LIB_S_ANALYSIS)
+$(S_ANALYSIS) : $(OBJ_S_ANALYSIS)  $(COMMON_LIBS) $(LIB_S_ANALYSIS)
 $(H_ANALYSIS) : $(OBJ_H_ANALYSIS) $(COMMON_LIBS) $(LIB_H_ANALYSIS)
 $(FIND_PS_ANALYSIS) : $(OBJ_FIND_PS_ANALYSIS) $(COMMON_LIBS) $(LIB_H_ANALYSIS)
 $(MCPU_ANALYSIS) : $(OBJ_MCPU_ANALYSIS) $(COMMON_LIBS) $(LIB_VIO) $(LIB_VS) $(LIB_AA) $(LIB_S_ANALYSIS) $(LIB_H_ANALYSIS) $(LIB_MCPU_ANALYSIS)
 
 %.d : %.c
 	$(CC) -MM $(CPPFLAGS) -MF $@ $<
--include $(OBJ_SBF:.o=.d)
+-include $(OBJS:.o=.d)
 -include $(LIBS:.o=.d)
-
-.PHONY:
-soft_clean :
-	rm -f $(OBJS) $(LIBS) *.d
-
-.PHONY:
-clean : soft_clean
-	rm -f $(BINS)

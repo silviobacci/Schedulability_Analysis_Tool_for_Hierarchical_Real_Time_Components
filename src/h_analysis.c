@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
 	
 	if(!is_schedulable) {
-		fprintf(out, "Let's try to find a periodic server that can schedule the entire taskset. ");
+		fprintf(out, "Let's try to find a periodic server that can schedule the entire taskset under %s. ",  s_algorithm_to_string(algorithm));
 		
 		if((ps = find_periodic_server(ts, algorithm)) != NULL)
 			print_periodic_server(ps, out);

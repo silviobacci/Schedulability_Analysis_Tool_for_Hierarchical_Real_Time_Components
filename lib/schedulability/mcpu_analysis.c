@@ -74,7 +74,7 @@ unsigned int mcpu_analysis(taskset *ts, vm* v, s_algorithm algorithm, a_algorith
 		if(allocation != NF) j = 0;
 		if(allocation == BF) {if(algorithm == EDF) sort_by_increasing_empty_space(v); else sort_by_increasing_empty_space_workload(v);}
 		if(allocation == WF) {if(algorithm == EDF) sort_by_decreasing_empty_space(v); else sort_by_decreasing_empty_space_workload(v);}
-		
+
 		while(!schedulable(ts, i, v, j, algorithm) && (j < v->n_cpus))
 			if (++j == v->n_cpus) 
 				return 0;

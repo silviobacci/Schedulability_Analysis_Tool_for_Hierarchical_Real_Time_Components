@@ -95,18 +95,19 @@ int main(int argc, char *argv[]) {
 	fprintf(out, "\n--------------------------------------------------------------------\n\n");
 	
 	print_a_algorithm(allocation, out);
+	print_s_algorithm(algorithm, out);
 	print_vm(v, out);
 	print_taskset(ts, out);
 	
 	if(mcpu_analysis(ts, v, algorithm, allocation)) {
-		fprintf(out, "\nThe taskset is schedulable under multi-CPU partitioned scheduling with the specified cpus and using %s as allocation algorithm.\n", a_algorithm_to_string(allocation));
+		fprintf(out, "\nThe taskset is schedulable under multi-CPU partitioned scheduling with the specified cpus, using %s as allocation algorithm and using %s as scheduling algorithm.\n", a_algorithm_to_string(allocation), s_algorithm_to_string(algorithm));
 		print_vm_load(v, out);
 		
 		if(!v->ps_set) {
 			sort_cpus_by_id(v);
 			for(i = 0; i < v->n_cpus; i++)
 				if(v->cpus[i].u > 0) {
-					fprintf(out, "Cpu %d : finding a periodic server for the taskset. \n", v->cpus[i].id);
+					fprintf(out, "Cpu %d : finding a periodic server for the taskset. ", v->cpus[i].id);
 					if((v->cpus[i].ps = find_periodic_server(v->cpus[i].ts, algorithm)) != NULL)
 						print_periodic_server(v->cpus[i].ps, out);
 					else
@@ -115,7 +116,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	else
-		fprintf(out, "\nThe taskset is NOT schedulable under multi-CPU partitioned scheduling with the specified cpus and using %s as allocation algorithm.\n", a_algorithm_to_string(allocation));
+		fprintf(out, "\nThe taskset is NOT schedulable under multi-CPU partitioned scheduling with the specified cpus, using %s as allocation algorithm and using %s as scheduling algorithm.\n", a_algorithm_to_string(allocation), s_algorithm_to_string(algorithm));
 		
 	fprintf(out, "\n--------------------------------------------------------------------");
 	fprintf(out, "\n------------------ END M-CPU SCHEDULING ANALYSIS -------------------");
