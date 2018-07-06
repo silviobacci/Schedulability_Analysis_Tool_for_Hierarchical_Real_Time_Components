@@ -43,15 +43,16 @@ double utilization_factor_modified(taskset *ts) {
 	double MIN = 10.0, MAX = 0.0, cur_u;
 
 	for(i = 0; i < ts->size; i++)
-		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0)
+		if((n_testing_set = testing_set_fp(ts, testing_set, i)) > 0) {
 			for (j = 0; j < n_testing_set; j++) {
 				cur_u = (double) workload_function(ts, i, testing_set[j]) / testing_set[i];
 				if (cur_u < MIN) 
 					MIN = cur_u;
 			}
 
-		if(MIN > MAX)
-			MAX = MIN;
+			if(MIN > MAX)
+				MAX = MIN;
+		}
 	
 	return MAX;
 }

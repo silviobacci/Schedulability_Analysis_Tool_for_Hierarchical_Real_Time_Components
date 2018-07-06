@@ -1,9 +1,8 @@
 VPATH = 				src
 LIB_PATH = 				lib
 
-CC = 					gcc
 CPPFLAGS = 				-I$(LIB_PATH)
-CFLAGS = 				-Wall -Wextra -pedantic -std=c11 
+CFLAGS = 				-Wall -pedantic -std=c11 
 LDLIBS =				-lm
 
 ifdef DEBUG
