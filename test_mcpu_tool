@@ -1,0 +1,143 @@
+#!/usr/bin/env sh
+
+START_U=0.4
+END_U=0.4
+STEP_U=0.1
+
+START_S=0
+END_S=0
+STEP_S=1
+
+START_A=0
+END_A=0
+STEP_A=1
+
+TASKSET_NUMBER=1
+TASKSET_FOLDER=taskset_auto_generated
+CPU="Cpu "
+SERVER_FOUND=" : finding a periodic server for the taskset. The periodic server has the following paramters: "
+BUDGET="	 Qs = "
+PERIOD="	 Ts = "
+FP="test_mcpu_fp.txt"
+RM="test_mcpu_rm.txt"
+DM="test_mcpu_dm.txt"
+EDF="test_mcpu_edf.txt"
+VM="./vm_hand_generated/vm_2.txt"
+
+task_generator() {
+	./taskgen 5 $1 $2
+}
+
+is_contained() {
+	./bin/mcpu_analysis $1 $2 $3 $4 | grep -q "$5"
+}
+
+get_value() {
+	./bin/mcpu_analysis $1 $2 $3 $4 | grep "$5"  | awk -F "\n" '{print $1}'
+}
+
+float_operation() {
+	echo "scale=2; $1" | bc
+}
+
+for S in $(seq $START_S $STEP_S $END_S); do
+	for U in $(seq $START_U $STEP_U $END_U); do
+		case "$S" in
+			"0")
+				FILENAME=$FP
+				;;
+			"1")
+				FILENAME=$RM
+				;;
+			"2")
+				FILENAME=$DM
+				;;
+			"3")
+				FILENAME=$EDF
+				;;
+		esac	
+		printf "%s" "$U" >> $FILENAME
+		for A in $(seq $START_A $STEP_A $END_A); do	
+			PRESENT=0
+			B1=0
+			B2=0
+			B3=0
+			B4=0
+			B5=0
+			FOUND1=0
+			FOUND2=0
+			FOUND3=0
+			FOUND4=0
+			FOUND5=0
+			for T in $(seq 0 0); do
+				task_generator $U $TASKSET_NUMBER
+		
+				for C in $(seq 1 5); do
+					TOTAL="$CPU$C$SERVER_FOUND"
+					if $(is_contained $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$TOTAL"); then
+						PRESENT=$(($PRESENT + 1))
+						Q_RESULT=$(get_value $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$BUDGET")
+						T_RESULT=$(get_value $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$PERIOD")
+						
+						echo ${Q_RESULT[0]}
+
+						Q=${Q_RESULT#"$BUDGET"}
+				  		T=${T_RESULT#"$PERIOD"}
+						
+						case "$C" in
+							"1")
+								B1=$(float_operation "$B1+$Q/$T")
+								FOUND1=$(($FOUND1 + 1))
+								;;
+							"2")
+								B2=$(float_operation "$B2+$Q/$T")
+								FOUND2=$(($FOUND2 + 1))
+								;;
+							"3")
+								B3=$(float_operation "$B3+$Q/$T")
+								FOUND3=$(($FOUND3 + 1))
+								;;
+							"4")
+								B4=$(float_operation "$B4+$Q/$T")
+								FOUND4=$(($FOUND4 + 1))
+								;;
+							"5")
+								B5=$(float_operation "$B5+$Q/$T")
+								FOUND5=$(($FOUND5 + 1))
+								;;
+						esac	
+					fi
+				done
+				TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
+			done
+			if [ $FOUND1 != 0 ]; then
+				B1=$(float_operation "$B1/$FOUND1")
+			else
+				B1=0
+			fi
+			if [ $FOUND2 != 0 ]; then
+				B2=$(float_operation "$B2/$FOUND2")
+			else
+				B2=0
+			fi
+			if [ $FOUND3 != 0 ]; then
+				B3=$(float_operation "$B3/$FOUND3")
+			else
+				B3=0
+			fi
+			if [ $FOUND4 != 0 ]; then
+				B4=$(float_operation "$B4/$FOUND4")
+			else
+				B4=0
+			fi
+			if [ $FOUND5 != 0 ]; then
+				B5=$(float_operation "$B5/$FOUND5")
+			else
+				B5=0
+			fi
+
+			printf "\t%s\t%s\t%s\t%s\t%s" "$B1" "$B2" "$B3" "$B4" "$B5" >> $FILENAME
+		done
+	done 
+	printf "\n" >> $FILENAME
+done
