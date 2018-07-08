@@ -1,0 +1,31 @@
+#!/bin/sh
+
+rand() {
+	shuf -i $1-$2 -n $3
+}
+
+generate_ts() {
+	python $TASKGEN -S $1 -d logunif -s $N_TASKSET -n $N -u $U -p 5 -q 30 -g 1 --round-C -f "%(C)d %(T)d %(T)d\n"
+}
+
+main() {
+	mkdir -p $OUTPUT_FOLDER
+
+	for I in $(seq $START_TASKSET $END_TASKSET); do
+		RANDOM=$(rand 0 100 1)
+		echo "Generating taskset ts_$I"
+		generate_ts $RANDOM > $OUTPUT_FOLDER/ts_$I.txt
+	done 
+}
+
+OUTPUT_FOLDER=taskset_auto_generated
+TASKGEN=$(realpath $(dirname $0))/taskgen.py
+N=$1
+U=$2
+N_TASKSET=1
+START_TASKSET=$3
+END_TASKSET=$(($START_TASKSET + $N_TASKSET - 1))
+
+main
+
+

@@ -1,0 +1,115 @@
+#!/usr/bin/env sh
+
+START_U=0.4
+END_U=0.9
+STEP_U=0.1
+SCHEDULING_ALGORITHMS=4
+N_TEST=10
+
+PROJECT_FOLDER="../"
+OUTPUT_FOLDER="test_h_results"
+TASKSET_NUMBER=1
+TASKSET_FOLDER="$PROJECT_FOLDER/testing/taskset_auto_generated"
+SERVER_FOUND="The periodic server has the following paramters:"
+BUDGET="	 Qs = "
+PERIOD="	 Ts = "
+ALL="$OUTPUT_FOLDER/test_h.txt"
+FP="$OUTPUT_FOLDER/test_h_fp.txt"
+RM="$OUTPUT_FOLDER/test_h_rm.txt"
+DM="$OUTPUT_FOLDER/test_h_dm.txt"
+EDF="$OUTPUT_FOLDER/test_h_edf.txt"
+FILENAME=$ALL
+
+task_generator() {
+	./$PROJECT_FOLDER/testing/taskgen $1 $2 $3
+}
+
+is_contained() {
+	./$PROJECT_FOLDER/bin/find_ps_analysis $1 $2 | grep -q "$3"
+}
+
+get_value() {
+	./$PROJECT_FOLDER/bin/find_ps_analysis $1 $2 | grep "$3"
+}
+
+float_operation() {
+	echo "scale=2; $1" | bc
+}
+
+rm $FILENAME $FP $RM $DM $EDF
+
+for U in $(seq $START_U $STEP_U $END_U); do
+	printf "%s" "$U" >> $FILENAME
+	for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do	
+		B=0
+		FOUND=0
+		for T in $(seq 1 $N_TEST); do
+			task_generator 5 $U $TASKSET_NUMBER
+			if $(is_contained $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$SERVER_FOUND"); then
+				Q_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$BUDGET")
+				T_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$PERIOD")
+				Q=${Q_RESULT#"$BUDGET"}
+		  		T=${T_RESULT#"$PERIOD"}
+		  		B=$(float_operation "$B+$Q/$T")
+		  		FOUND=$(($FOUND + 1))
+			fi
+			TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
+		done
+		
+		if [ $FOUND != 0 ]; then
+			B=$(float_operation "$B/$FOUND")
+		else
+			B=0
+		fi
+		printf "\t%s" "$B" >> $FILENAME
+	done 
+	printf "\n" >> $FILENAME
+done
+
+FILENAME=$ALL
+
+for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do	
+	for U in $(seq $START_U $STEP_U $END_U); do
+		case "$S" in
+			"0")
+				FILENAME=$FP
+				;;
+			"1")
+				FILENAME=$RM
+				;;
+			"2")
+				FILENAME=$DM
+				;;
+			"3")
+				FILENAME=$EDF
+				;;
+		esac	
+		printf "%s" "$U" >> $FILENAME
+		for TN in $(seq 4 2 10); do
+			B=0
+			FOUND=0
+			for T in $(seq 1 $N_TEST); do
+				task_generator $TN $U $TASKSET_NUMBER
+				if $(is_contained $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$SERVER_FOUND"); then
+					Q_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$BUDGET")
+					T_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$PERIOD")
+					Q=${Q_RESULT#"$BUDGET"}
+			  		T=${T_RESULT#"$PERIOD"}
+			  		B=$(float_operation "$B+$Q/$T")
+			  		FOUND=$(($FOUND + 1))
+				fi
+				TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
+			done
+		
+			if [ $FOUND != 0 ]; then
+				B=$(float_operation "$B/$FOUND")
+			else
+				B=0
+			fi
+			printf "\t%s" "$B" >> $FILENAME
+		done 
+		printf "\n" >> $FILENAME
+	done
+done
+
+cat "$OUTPUT_FOLDER/test_h_gnuplot.conf" | gnuplot
