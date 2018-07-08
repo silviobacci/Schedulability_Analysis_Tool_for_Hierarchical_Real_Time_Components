@@ -88,21 +88,23 @@ vm * create_empty_vm() {
 vm * load_vm(FILE *f, int ps_present) {
 	unsigned int Qs = 0, Ts = 0, i = 0;
 	vm * v = create_empty_vm();
+	int ret;
 
 	while(!feof(f) && i < MAX_NUMBER_CPUS) {
 		if(ps_present) {
-			fscanf(f, "%lf %u %u\n", &v->cpus[i].max_u, &Qs, &Ts);
+			ret = fscanf(f, "%lf %u %u\n", &v->cpus[i].max_u, &Qs, &Ts);
 			v->cpus[i].ps = load_periodic_server(Qs, Ts);
 			v->ps_set = 1;
 		}
 		else {
-			fscanf(f, "%lf\n", &v->cpus[i].max_u);
+			ret = fscanf(f, "%lf\n", &v->cpus[i].max_u);
 			v->cpus[i].ps = create_empty_ps();
 			v->ps_set = 0;
 		}
 		v->cpus[i].id = i + 1;
 		v->cpus[i].u = 0.0;
 		v->cpus[i].ts = create_empty_ts();
+		if((ps_present && ret == 3) || (!ps_present && ret == 1))
 		i++;
 	}
 

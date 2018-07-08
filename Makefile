@@ -1,5 +1,6 @@
 VPATH = 				src
 LIB_PATH = 				lib
+BIN_PATH = 				bin
 
 CPPFLAGS = 				-I$(LIB_PATH)
 CFLAGS = 				-Wall -pedantic -std=c11 
@@ -44,6 +45,10 @@ BINS = 					$(SBF) $(S_ANALYSIS) $(H_ANALYSIS) $(MCPU_ANALYSIS) $(FIND_PS_ANALYS
 
 .PHONY:
 all : $(SBF) $(S_ANALYSIS) $(H_ANALYSIS) $(MCPU_ANALYSIS) $(FIND_PS_ANALYSIS)
+
+.PHONY:
+install : 
+	cp $(BINS) $(BIN_PATH)
 
 .PHONY:
 clean :
