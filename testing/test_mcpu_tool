@@ -1,20 +1,7 @@
 #!/bin/bash
 
-START_U=0.4
-END_U=0.9
-STEP_U=0.1
-
-START_U=0.4
-END_U=0.9
-STEP_U=0.1
-SCHEDULING_ALGORITHMS=4
-ALLOCATION_ALGORITHMS=5
-N_CPU=5
-N_TEST=10
-
 PROJECT_FOLDER="../"
 OUTPUT_FOLDER="test_mcpu_results"
-TASKSET_NUMBER=1
 TASKSET_FOLDER="$PROJECT_FOLDER/testing/taskset_auto_generated"
 CPU="Cpu "
 SERVER_FOUND=" : finding a periodic server for the taskset. The periodic server has the following paramters: "
@@ -25,6 +12,15 @@ RM="$OUTPUT_FOLDER/test_mcpu_rm.txt"
 DM="$OUTPUT_FOLDER/test_mcpu_dm.txt"
 EDF="$OUTPUT_FOLDER/test_mcpu_edf.txt"
 VM="./vm_hand_generated/vm_2.txt"
+
+START_U=0.4
+END_U=0.9
+STEP_U=0.1
+SCHEDULING_ALGORITHMS=4
+ALLOCATION_ALGORITHMS=5
+N_CPU=5
+N_TEST=10
+TASKSET_NUMBER=1
 
 task_generator() {
 	./taskgen 5 $1 $2
@@ -42,64 +38,70 @@ float_operation() {
 	echo "scale=2; $1" | bc
 }
 
-rm $FP $RM $DM $EDF
-
-for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do
-	for U in $(seq $START_U $STEP_U $END_U); do
-		case "$S" in
-			"0")
-				FILENAME=$FP
-				;;
-			"1")
-				FILENAME=$RM
-				;;
-			"2")
-				FILENAME=$DM
-				;;
-			"3")
-				FILENAME=$EDF
-				;;
-		esac	
-		printf "%s" "$U" >> $FILENAME
-		for A in $(seq 0 $(($ALLOCATION_ALGORITHMS - 1))); do	
-			for C in $(seq 1 $N_CPU); do
-				B[$C]=0
-				FOUND[$C]=0
-			done
-			for T in $(seq 1 $N_TEST); do
-				task_generator $U $TASKSET_NUMBER
-		
+test_cpu_utilization() {
+	for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do
+		for U in $(seq $START_U $STEP_U $END_U); do
+			case "$S" in
+				"0")
+					FILENAME=$FP
+					;;
+				"1")
+					FILENAME=$RM
+					;;
+				"2")
+					FILENAME=$DM
+					;;
+				"3")
+					FILENAME=$EDF
+					;;
+			esac	
+			printf "%s" "$U" >> $FILENAME
+			for A in $(seq 0 $(($ALLOCATION_ALGORITHMS - 1))); do	
 				for C in $(seq 1 $N_CPU); do
-					STRING_TO_FIND="$CPU$C$SERVER_FOUND"
-					if $(is_contained $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$STRING_TO_FIND"); then
-						Q_RESULT=$(get_value $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$STRING_TO_FIND" "$BUDGET")
-						T_RESULT=$(get_value $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$STRING_TO_FIND" "$PERIOD")
-
-						Q=${Q_RESULT#"$BUDGET"}
-				  		T=${T_RESULT#"$PERIOD"}
-						
-						TMP_B=${B[$C]}
-						B[$C]=$(float_operation "$TMP_B+$Q/$T")
-						FOUND[$C]=$((${FOUND[$C]} + 1))
-					fi
-				done
-				TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
-			done
-			for C in $(seq 1 $N_CPU); do
-				if [ ${FOUND[$C]} != 0 ]; then
-					TMP_B=${B[$C]}
-					TMP_FOUND=${FOUND[$C]}
-					B[$C]=$(float_operation "$TMP_B/$TMP_FOUND")
-				else
 					B[$C]=0
-				fi
-				TMP=${B[$C]}
-				printf "\t%s" "$TMP" >> $FILENAME
+					FOUND[$C]=0
+				done
+				for T in $(seq 1 $N_TEST); do
+					task_generator $U $TASKSET_NUMBER
+		
+					for C in $(seq 1 $N_CPU); do
+						STRING_TO_FIND="$CPU$C$SERVER_FOUND"
+						if $(is_contained $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$STRING_TO_FIND"); then
+							Q_RESULT=$(get_value $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$STRING_TO_FIND" "$BUDGET")
+							T_RESULT=$(get_value $VM $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S $A "$STRING_TO_FIND" "$PERIOD")
+
+							Q=${Q_RESULT#"$BUDGET"}
+					  		T=${T_RESULT#"$PERIOD"}
+						
+							TMP_B=${B[$C]}
+							B[$C]=$(float_operation "$TMP_B+$Q/$T")
+							FOUND[$C]=$((${FOUND[$C]} + 1))
+						fi
+					done
+					TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
+				done
+				for C in $(seq 1 $N_CPU); do
+					if [ ${FOUND[$C]} != 0 ]; then
+						TMP_B=${B[$C]}
+						TMP_FOUND=${FOUND[$C]}
+						B[$C]=$(float_operation "$TMP_B/$TMP_FOUND")
+					else
+						B[$C]=0
+					fi
+					TMP=${B[$C]}
+					printf "\t%s" "$TMP" >> $FILENAME
+				done
+
 			done
+			printf "\n" >> $FILENAME
+		done 
+	done
+}
 
-		done
-		printf "\n" >> $FILENAME
-	done 
-done
+main() {
+	rm $OUTPUT_FOLDER/*
+	test_cpu_utilization
+	cat "$PROJECT_FOLDER/testing/test_mcpu_gnuplot.conf" | gnuplot
+}
 
-cat "$OUTPUT_FOLDER/test_mcpu_gnuplot.conf" | gnuplot
+main

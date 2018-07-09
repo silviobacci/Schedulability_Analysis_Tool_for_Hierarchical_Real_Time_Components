@@ -222,7 +222,7 @@ def main():
         return 1
 
     if options.seed > 0:
-        print >>sys.stderr, "Setting the seed to " + str(options.seed)
+        #print >>sys.stderr, "Setting the seed to " + str(options.seed)
         numpy.random.seed(options.seed)
 
     known_perdists = ["unif", "logunif"]
