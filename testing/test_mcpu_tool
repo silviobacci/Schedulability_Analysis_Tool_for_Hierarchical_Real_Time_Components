@@ -5,6 +5,7 @@ OUTPUT_FOLDER="test_mcpu_results"
 TASKSET_FOLDER="$PROJECT_FOLDER/testing/taskset_auto_generated"
 CPU="Cpu "
 SERVER_FOUND=" : finding a periodic server for the taskset. The periodic server has the following paramters: "
+UTILIZATION="The utilization of the taskset is "
 BUDGET="	 Qs = "
 PERIOD="	 Ts = "
 FP="$OUTPUT_FOLDER/test_mcpu_fp.txt"
@@ -23,9 +24,23 @@ N_TEST=10
 TASKSET_NUMBER=1
 
 task_generator() {
-	for T in $(seq 1 $N_TEST); do
-		./$PROJECT_FOLDER/testing/taskgen $1 $2 $T >/dev/null
+	U_REAL=0
+	FOUND=0
+	for TN in $(seq $1 $2 $3); do
+		INDEX=$((($TN - $1) / $2))
+		for T in $(seq $(($N_TEST * $INDEX + 1)) $(($N_TEST * ($INDEX + 1)))); do
+			./$PROJECT_FOLDER/testing/taskgen $TN $4 $T >/dev/null
+			RESULT=$(run_tool $VM $TASKSET_FOLDER/ts_$T.txt 0 0)
+			if $(is_contained "$RESULT" "$UTILIZATION"); then
+				U_RESULT=$(get_value "$RESULT" "$UTILIZATION")
+				U_TMP=${U_RESULT#"$UTILIZATION"}
+				U_REAL=$(float_operation "$U_REAL+$U_TMP")
+				FOUND=$(($FOUND + 1))
+			fi
+		done
 	done
+	
+	U_REAL=$(float_operation "$U_REAL/$FOUND")
 }
 
 run_tool() {
@@ -61,10 +76,10 @@ test_cpu_utilization() {
 				;;
 		esac	
 		for U in $(seq $START_U $STEP_U $END_U); do
-			printf "%s" "$U" >> $FILENAME
-			task_generator 8 $U
+			task_generator 8 8 8 $U
+			printf "%s" "$U_REAL" >> $FILENAME
 			for A in $(seq 0 $(($ALLOCATION_ALGORITHMS - 1))); do	
-				echo "ALGORITHM = $S, U = $U, EURISTIC = $A"
+				echo "ALGORITHM = $S, U = $U_REAL, EURISTIC = $A"
 				for C in $(seq 1 $N_CPU); do
 					B[$C]=0
 					FOUND[$C]=0

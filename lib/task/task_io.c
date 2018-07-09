@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "task/types.h"
+#include "task/utilities.h"
 #include "task/task_io.h"
 
 //------------------------------------------------------------------------------
@@ -25,6 +26,7 @@ void print_taskset(taskset *ts, FILE *f) {
 		fprintf(f, "\t Task %u : (%u, %u, %u)\n", ts->tasks[i].id, ts->tasks[i].C, ts->tasks[i].D, ts->tasks[i].T);
 
 	fprintf(f, "\n");
+	fprintf(f, "The utilization of the taskset is %f\n\n",  utilization_factor(ts));
 }
 
 //------------------------------------------------------------------------------

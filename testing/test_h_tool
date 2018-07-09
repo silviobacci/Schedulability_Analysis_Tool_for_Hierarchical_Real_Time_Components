@@ -6,6 +6,7 @@ TASKSET_FOLDER="$PROJECT_FOLDER/testing/taskset_auto_generated"
 SERVER_FOUND="The periodic server has the following paramters:"
 BUDGET="	 Qs = "
 PERIOD="	 Ts = "
+UTILIZATION="The utilization of the taskset is 0"
 ALL="$OUTPUT_FOLDER/test_h.txt"
 FP="$OUTPUT_FOLDER/test_h_fp.txt"
 RM="$OUTPUT_FOLDER/test_h_rm.txt"
@@ -15,17 +16,35 @@ EDF="$OUTPUT_FOLDER/test_h_edf.txt"
 START_U=0.4
 END_U=0.9
 STEP_U=0.1
+START_TN=4
+END_TN=8
+STEP_TN=2
 SCHEDULING_ALGORITHMS=4
 N_TEST=10
 TASKSET_NUMBER=1
 
 task_generator() {
-	for T in $(seq 1 $N_TEST); do
-		./$PROJECT_FOLDER/testing/taskgen $1 $2 $T >/dev/null
+	U_REAL=0
+	FOUND=0
+	for TN in $(seq $1 $2 $3); do
+		INDEX=$((($TN - $1) / $2))
+		for T in $(seq $(($N_TEST * $INDEX + 1)) $(($N_TEST * ($INDEX + 1)))); do
+			./$PROJECT_FOLDER/testing/taskgen $TN $4 $T >/dev/null
+			RESULT=$(run_tool $TASKSET_FOLDER/ts_$T.txt 0)
+			if $(is_contained "$RESULT" "$UTILIZATION"); then
+				U_RESULT=$(get_value "$RESULT" "$UTILIZATION")
+				U_TMP=${U_RESULT#"$UTILIZATION"}
+				U_REAL=$(float_operation "$U_REAL+$U_TMP")
+				FOUND=$(($FOUND + 1))
+			fi
+		done
 	done
+	
+	U_REAL=$(float_operation "$U_REAL/$FOUND")
 }
 
 run_tool() {
+	echo "$1 $2"
 	./$PROJECT_FOLDER/bin/find_ps_analysis $1 $2
 }
 
@@ -44,10 +63,10 @@ float_operation() {
 test_scheduling_algorithms() {
 	FILENAME=$ALL
 	for U in $(seq $START_U $STEP_U $END_U); do
-		printf "%s\t%s" "$U" "$U" >> $FILENAME
-		task_generator 5 $U
+		task_generator 5 5 5 $U
+		printf "%s" "$U_REAL" >> $FILENAME
 		for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do	
-			echo "U = $U, ALGORITHM = $S"
+			echo "U = $U_REAL, ALGORITHM = $S"
 			B=0
 			FOUND=0
 			for T in $(seq 1 $N_TEST); do
@@ -90,13 +109,14 @@ test_task_number() {
 				;;
 		esac
 		for U in $(seq $START_U $STEP_U $END_U); do
-			printf "%s" "$U" >> $FILENAME
-			for TN in $(seq 4 2 8); do
-				echo "ALGORITHM = $S, U = $U, # TASKS = $TN"
+			task_generator $START_TN $STEP_TN $END_TN $U
+			printf "%s" "$U_REAL" >> $FILENAME
+			for TN in $(seq $START_TN $STEP_TN $END_TN); do
+				echo "ALGORITHM = $S, U = $U_REAL, # TASKS = $TN"
 				B=0
 				FOUND=0
-				task_generator $TN $U
-				for T in $(seq 1 $N_TEST); do
+				INDEX=$((($TN - $START_TN) / $STEP_TN))
+				for T in $(seq $(($N_TEST * $INDEX + 1)) $(($N_TEST * ($INDEX + 1)))); do
 					RESULT=$(run_tool $TASKSET_FOLDER/ts_$T.txt $S)
 					if $(is_contained "$RESULT" "$SERVER_FOUND"); then
 						Q_RESULT=$(get_value "$RESULT" "$BUDGET")

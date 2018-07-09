@@ -13,7 +13,8 @@ rand() {
 }
 
 generate_ts() {
-	RANDOM=$(rand 0 1000 1)
+	RANDOM=$1
+	#$(rand 0 1000 1)
 	python $TASKGEN -S $RANDOM -d logunif -s $N_TASKSET -n $N -u $U -p 5 -q 30 -g 1 --round-C -f "%(C)d %(T)d %(T)d\n"
 }
 
@@ -22,7 +23,7 @@ main() {
 
 	for I in $(seq $START_TASKSET $END_TASKSET); do
 		echo "Generating taskset ts_$I"
-		generate_ts > $OUTPUT_FOLDER/ts_$I.txt
+		generate_ts $I> $OUTPUT_FOLDER/ts_$I.txt
 	done 
 }
 
