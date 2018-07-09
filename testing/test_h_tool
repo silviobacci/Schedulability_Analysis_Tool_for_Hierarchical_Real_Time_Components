@@ -20,15 +20,21 @@ N_TEST=10
 TASKSET_NUMBER=1
 
 task_generator() {
-	./$PROJECT_FOLDER/testing/taskgen $1 $2 $3
+	for T in $(seq 1 $N_TEST); do
+		./$PROJECT_FOLDER/testing/taskgen $1 $2 $T >/dev/null
+	done
+}
+
+run_tool() {
+	./$PROJECT_FOLDER/bin/find_ps_analysis $1 $2
 }
 
 is_contained() {
-	./$PROJECT_FOLDER/bin/find_ps_analysis $1 $2 | grep -q "$3"
+	echo "$1" | grep -q "$2"
 }
 
 get_value() {
-	./$PROJECT_FOLDER/bin/find_ps_analysis $1 $2 | grep "$3"
+	echo "$1" | grep "$2"
 }
 
 float_operation() {
@@ -38,21 +44,22 @@ float_operation() {
 test_scheduling_algorithms() {
 	FILENAME=$ALL
 	for U in $(seq $START_U $STEP_U $END_U); do
-		printf "%s" "$U" >> $FILENAME
+		printf "%s\t%s" "$U" "$U" >> $FILENAME
+		task_generator 5 $U
 		for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do	
+			echo "U = $U, ALGORITHM = $S"
 			B=0
 			FOUND=0
 			for T in $(seq 1 $N_TEST); do
-				task_generator 5 $U $TASKSET_NUMBER
-				if $(is_contained $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$SERVER_FOUND"); then
-					Q_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$BUDGET")
-					T_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$PERIOD")
+				RESULT=$(run_tool $TASKSET_FOLDER/ts_$T.txt $S)
+				if $(is_contained "$RESULT" "$SERVER_FOUND"); then
+					Q_RESULT=$(get_value "$RESULT" "$BUDGET")
+					P_RESULT=$(get_value "$RESULT" "$PERIOD")
 					Q=${Q_RESULT#"$BUDGET"}
-			  		T=${T_RESULT#"$PERIOD"}
-			  		B=$(float_operation "$B+$Q/$T")
+			  		P=${P_RESULT#"$PERIOD"}
+			  		B=$(float_operation "$B+$Q/$P")
 			  		FOUND=$(($FOUND + 1))
 				fi
-				TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
 			done
 		
 			if [ $FOUND != 0 ]; then
@@ -68,36 +75,37 @@ test_scheduling_algorithms() {
 
 test_task_number() {
 	for S in $(seq 0 $(($SCHEDULING_ALGORITHMS - 1))); do	
+		case "$S" in
+			"0")
+				FILENAME=$FP
+				;;
+			"1")
+				FILENAME=$RM
+				;;
+			"2")
+				FILENAME=$DM
+				;;
+			"3")
+				FILENAME=$EDF
+				;;
+		esac
 		for U in $(seq $START_U $STEP_U $END_U); do
-			case "$S" in
-				"0")
-					FILENAME=$FP
-					;;
-				"1")
-					FILENAME=$RM
-					;;
-				"2")
-					FILENAME=$DM
-					;;
-				"3")
-					FILENAME=$EDF
-					;;
-			esac	
 			printf "%s" "$U" >> $FILENAME
-			for TN in $(seq 4 2 10); do
+			for TN in $(seq 4 2 8); do
+				echo "ALGORITHM = $S, U = $U, # TASKS = $TN"
 				B=0
 				FOUND=0
+				task_generator $TN $U
 				for T in $(seq 1 $N_TEST); do
-					task_generator $TN $U $TASKSET_NUMBER
-					if $(is_contained $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$SERVER_FOUND"); then
-						Q_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$BUDGET")
-						T_RESULT=$(get_value $TASKSET_FOLDER/ts_$TASKSET_NUMBER.txt $S "$PERIOD")
+					RESULT=$(run_tool $TASKSET_FOLDER/ts_$T.txt $S)
+					if $(is_contained "$RESULT" "$SERVER_FOUND"); then
+						Q_RESULT=$(get_value "$RESULT" "$BUDGET")
+						P_RESULT=$(get_value "$RESULT" "$PERIOD")
 						Q=${Q_RESULT#"$BUDGET"}
-				  		T=${T_RESULT#"$PERIOD"}
-				  		B=$(float_operation "$B+$Q/$T")
+				  		P=${P_RESULT#"$PERIOD"}
+				  		B=$(float_operation "$B+$Q/$P")
 				  		FOUND=$(($FOUND + 1))
 					fi
-					TASKSET_NUMBER=$(($TASKSET_NUMBER + 1))
 				done
 		
 				if [ $FOUND != 0 ]; then

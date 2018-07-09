@@ -24,25 +24,24 @@
 //------------------------------------------------------------------------------
 
 unsigned int h_analysis_fp(taskset *ts, periodic_server *ps) {
-	unsigned int testing_set_f[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], i, is_schedulable = 0;
+	unsigned int testing_set_f[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], i;
 	int j, n_testing_set, n_testing_set_f, n_testing_set_s;
 
 	for(i = 0; i < ts->size; i++) {
-		is_schedulable = 0;
 		n_testing_set_f = testing_set_fp(ts, testing_set_f, i);
 		n_testing_set_s = testing_set_sbf(ps, testing_set_s, testing_set_f[n_testing_set_f - 1]);
 
 		if ((n_testing_set = merge_testing_sets(testing_set_f, n_testing_set_f, testing_set_s, n_testing_set_s, testing_set)) > 0) {
 			for (j = 0; j < n_testing_set; j++)
 				if(workload_function(ts, i, testing_set[j]) <= sbf(ps, testing_set[j]))
-					is_schedulable = 1;
+					break;
 			
-			if(!is_schedulable)
-				break;
+			if(j >= n_testing_set)
+				return 0;
 		}
 	}
 
-	return is_schedulable;
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ unsigned int h_analysis_fp(taskset *ts, periodic_server *ps) {
 //------------------------------------------------------------------------------
 
 unsigned int h_analysis_edf(taskset *ts, periodic_server *ps){
-	unsigned int testing_set_e[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE], is_schedulable = 1;
+	unsigned int testing_set_e[MAX_TESTING_SET_SIZE], testing_set_s[MAX_TESTING_SET_SIZE], testing_set[MAX_TESTING_SET_SIZE];
 	int i, n_testing_set, n_testing_set_e, n_testing_set_s;
 	
 	n_testing_set_e = testing_set_edf(ts, testing_set_e);
@@ -59,9 +58,9 @@ unsigned int h_analysis_edf(taskset *ts, periodic_server *ps){
 	if ((n_testing_set = merge_testing_sets(testing_set_e, n_testing_set_e, testing_set_s, n_testing_set_s, testing_set)) > 0) 
 		for (i = 0; i < n_testing_set; i++)
 			if (processor_demand_function(ts, testing_set[i]) > sbf(ps, testing_set[i])) 
-				is_schedulable = 0;
+				return 0;
 	
-	return is_schedulable;
+	return 1;
 }
 
 //------------------------------------------------------------------------------
